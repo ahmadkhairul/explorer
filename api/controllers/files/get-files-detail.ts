@@ -22,7 +22,8 @@ export const getFileDetail = async ({
           eq(files.parent_id, Number(params.parent_id)),
           isNull(files.deleted_at)
         )
-      );
+      )
+      .orderBy(files.name);
 
     if (data.length > 0) {
       return {
