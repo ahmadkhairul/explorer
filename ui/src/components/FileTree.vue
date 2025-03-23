@@ -19,7 +19,7 @@ const loading: Ref<boolean> = ref(true);
 
 const fetchFiles = async () => {
   loading.value = true;
-  files.value = await getFiles(undefined);
+  files.value = await getFiles(undefined, { type: "folder" });
   loading.value = false;
 };
 
@@ -29,12 +29,12 @@ defineExpose({ fetchFiles });
 </script>
 
 <style scoped>
-/* Container utama folder explorer */
+
 .folder-explorer {
   width: 100%;
   max-width: 300px;
   min-width: 250px;
-  overflow-y: auto; /* Tambahkan scrollbar jika folder banyak */
+  overflow-y: auto;
 }
 
 /* Loading text */

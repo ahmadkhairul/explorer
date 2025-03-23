@@ -1,16 +1,6 @@
 import { Elysia } from "elysia";
-import {
-  getFiles,
-  getFileDetail,
-  getFilesSchema,
-  upsertFile,
-  upsertFileSchema,
-  updateFile,
-  deleteFiles,
-  editFileSchema,
-} from "./controllers/files";
 import { cors } from "@elysiajs/cors";
-
+import { getFiles, createFiles, deleteFiles, updateFiles } from "./controllers/files/files.api";
 const app = new Elysia();
 
 app.use(
@@ -23,10 +13,10 @@ app.use(
 
 app.group('/api/v1', (app) =>
   app
-    .get("/files", getFiles, getFilesSchema)
-    .get("/files/:parent_id", getFileDetail)
-    .post("/files", upsertFile, upsertFileSchema)
-    .put("/files/:id", updateFile, editFileSchema)
+    .get("/files", getFiles)
+    .get("/files/:parent_id", getFiles)
+    .post("/files", createFiles)
+    .put("/files/:id", updateFiles)
     .delete("/files/:id", deleteFiles)
 );
 

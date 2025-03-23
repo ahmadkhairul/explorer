@@ -107,7 +107,7 @@ const { showFileTree } = defineProps<{ showFileTree: boolean }>();
 
 const fetchFiles = async () => {
   loading.value = true;
-  files.value = await getFiles(undefined, searchQuery.value);
+  files.value = await getFiles(undefined, { name: searchQuery.value });
   loading.value = false;
   if (searchQuery.value) {
     breadcrumb.value = [];
@@ -117,7 +117,7 @@ const fetchFiles = async () => {
 const fetchFilesDetail = async (file: FileProps) => {
   if (file.type === 'folder') {
     loading.value = true;
-    files.value = await getFiles(file.id);
+    files.value = await getFiles(file.id, {});
     breadcrumb.value.push(file);
     loading.value = false;
   }
@@ -131,7 +131,7 @@ const onBreadcrumbClick = async (index: number) => {
     return;
   } else {
     loading.value = true;
-    files.value = await getFiles(breadcrumb.value[index].id);
+    files.value = await getFiles(breadcrumb.value[index].id, {});
     loading.value = false;
   }
 };
@@ -146,7 +146,7 @@ const createFolder = async () => {
 
   if (breadcrumb.value.length > 0) {
     loading.value = true;
-    files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id);
+    files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id, {});
     loading.value = false;
   } else {
     fetchFiles();
@@ -167,7 +167,7 @@ const uploadFiles = async () => {
 
     if (breadcrumb.value.length > 0) {
       loading.value = true;
-      files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id);
+      files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id, {});
       loading.value = false;
     } else {
       fetchFiles();
@@ -186,7 +186,7 @@ const editFile = async () => {
 
     if (breadcrumb.value.length > 0) {
       loading.value = true;
-      files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id);
+      files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id, {});
       loading.value = false;
     } else {
       fetchFiles();
@@ -203,7 +203,7 @@ const deleteFile = async () => {
 
     if (breadcrumb.value.length > 0) {
       loading.value = true;
-      files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id);
+      files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id, {});
       loading.value = false;
     } else {
       fetchFiles();

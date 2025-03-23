@@ -39,7 +39,7 @@ const toggle = async (id: number) => {
 
   if (!isFetched.value) {
     loading.value = true;
-    childList.value = await getFiles(id);
+    childList.value = await getFiles(id, { type: "folder" });
     loading.value = false;
     isFetched.value = true; // ✅ Only fetch once
   }
@@ -92,6 +92,7 @@ const toggle = async (id: number) => {
   .folder {
     font-size: 14px;
   }
+
   .child-items {
     margin-left: 10px;
     padding-left: 5px;
