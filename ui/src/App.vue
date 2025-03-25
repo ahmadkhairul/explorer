@@ -1,31 +1,47 @@
-<script setup>
+<script setup lang="ts">
+import type { Ref } from 'vue';
 import FileExplorer from "./components/FileExplorer.vue";
 import FileTree from "./components/FileTree.vue";
 import { ref } from "vue";
+import type { FileProps } from './types';
+import { getFiles } from './services/api';
 
-const showFileTree = ref(true);
-const fileTreeRef = ref(null);
+const showFileTree: Ref<boolean> = ref(true);
+const breadcrumb: Ref<FileProps[]> = ref([]);
+const loading: Ref<boolean> = ref(true);
+const files: Ref<FileProps[]> = ref([]);
+
+const fetchFiles = async (
+  id: number | undefined,
+  params: {
+    name?: string,
+    type?: string,
+  }
+) => {
+  loading.value = true;
+  files.value = await getFiles(id, params);
+  loading.value = false;
+};
 
 const toggleFileTree = () => {
   showFileTree.value = !showFileTree.value;
 };
 
-const refreshFiles = () => {
-  if (fileTreeRef.value) {
-    fileTreeRef.value.fetchFiles();
-  }
-};
+const setBreadcrumb = (value: FileProps[]) => {
+  breadcrumb.value = value;
+}
 
 </script>
 
 <template>
   <div class="container">
     <aside :class="{ 'file-tree': true, 'hidden': !showFileTree }">
-      <FileTree ref="fileTreeRef" />
+      <FileTree @fetch-files="fetchFiles" @set-breadcrumb="setBreadcrumb" :breadcrumb />
     </aside>
 
     <main :class="{ 'file-list': true }" :style="{ width: showFileTree ? '70vw' : '90vw' }">
-      <FileExplorer :showFileTree="showFileTree" @toggle-file-tree="toggleFileTree" @refresh-files="refreshFiles" />
+      <FileExplorer :breadcrumb :loading :files :showFileTree @toggle-file-tree="toggleFileTree"
+        @set-breadcrumb="setBreadcrumb" @fetch-files="fetchFiles" />
     </main>
   </div>
 </template>

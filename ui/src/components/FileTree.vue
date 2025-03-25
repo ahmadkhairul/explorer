@@ -1,35 +1,51 @@
 <template>
   <div class="folder-explorer">
-    <div v-if="loading" class="loading">Loading...</div>
+    <!-- Loading State -->
+    <div v-if="loading" class="loading">⏳ Loading...</div>
+
+    <!-- Folder List -->
     <div v-else class="folder-list">
-      <FolderItem v-for="file in files" :key="file.id" :file="file" />
+      <FolderItem v-for="file in folders" :breadcrumb :key="file.id" :file="file" @fetch-files="fetchFiles"
+        @set-breadcrumb="setBreadcrumb" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import type { Ref } from "vue";
 import FolderItem from "./FileTreeItem.vue";
-import { getFiles } from "../services/api";
 import { type FileProps } from "../types";
+import { onMounted, ref } from "vue";
+import type { Ref } from "vue";
+import { getFiles } from "../services/api";
 
-const files: Ref<FileProps[]> = ref([]);
 const loading: Ref<boolean> = ref(true);
+const folders: Ref<FileProps[]> = ref([]);
 
-const fetchFiles = async () => {
+const emit = defineEmits(["fetch-files", "set-breadcrumb"]);
+const { breadcrumb } = defineProps<{ breadcrumb: FileProps[] }>();
+
+const fetchFiles = async (
+  id: number | undefined,
+) => {
+  emit("fetch-files", id)
+};
+
+const setBreadcrumb = async (
+  newbreadcrumb: FileProps[]
+) => {
+  emit("set-breadcrumb", newbreadcrumb)
+}
+
+const fetchFolder = async () => {
   loading.value = true;
-  files.value = await getFiles(undefined, { type: "folder" });
+  folders.value = await getFiles(undefined, { type: "folder" });
   loading.value = false;
 };
 
-onMounted(fetchFiles);
-
-defineExpose({ fetchFiles });
+onMounted(fetchFolder());
 </script>
 
 <style scoped>
-
 .folder-explorer {
   width: 100%;
   max-width: 300px;

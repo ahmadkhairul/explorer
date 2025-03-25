@@ -47,17 +47,10 @@
       </div>
     </Modal>
 
-    <!-- File List Breacrumbs -->
-    <div class="breadcrumb">
-      <span @click="onBreadcrumbClick(-1)">Home</span> {{ breadcrumb && breadcrumb.length > 0 ? ' > ' : '' }}
-      <template v-for="(item, index) in breadcrumb">
-        <span @click="onBreadcrumbClick(index)">{{ item.name }}</span>
-        <span v-if="index < breadcrumb.length - 1"> > </span>
-      </template>
-    </div>
+    <Breadcrumb :breadcrumb @fetch-files="fetchFiles" @set-breadcrumb="setBreadcrumb" />
 
     <div v-if="loading" class="loading">⏳ Loading...</div>
-
+    <div v-else-if="files.length === 0">Folder Masih Kosong</div>
     <!-- File List -->
     <div class="container-file" v-else>
       <div class="container-item" v-for="file in files" :key="file.id">
@@ -78,21 +71,36 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import type { Ref } from 'vue';
-import { getFiles, upsertFile, updateFile, destroyFile } from "../services/api";
+import { upsertFile, updateFile, destroyFile } from "../services/api";
 import { type FileProps } from "../types";
 import Modal from "../elements/Modal.vue";
+import Breadcrumb from "../elements/Breadcrumb.vue";
 
-const breadcrumb: Ref<FileProps[]> = ref([]);
-const files: Ref<FileProps[]> = ref([]);
-const loading: Ref<boolean> = ref(true);
-const searchQuery: Ref<string> = ref("");
 const isModalOpen: Ref<string | null> = ref(null);
 const folderName: Ref<string> = ref("");
 const selectedFile: Ref<File | null> = ref(null);
 const showActions: Ref<boolean> = ref(false);
 const newFileName: Ref<string> = ref("");
 const selectedData: Ref<FileProps | null> = ref(null);
-const emit = defineEmits(["refresh-files", "toggle-file-tree"]);
+const searchQuery: Ref<string> = ref("");
+
+const emit = defineEmits([
+  "toggle-file-tree",
+  "set-breadcrumb",
+  "fetch-files"
+]);
+
+const {
+  breadcrumb,
+  loading,
+  files,
+  showFileTree,
+} = defineProps<{
+  breadcrumb: FileProps[],
+  loading: boolean,
+  showFileTree: boolean,
+  files: FileProps[],
+}>();
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -103,57 +111,49 @@ const handleFileUpload = (event: Event) => {
 
 let timeout: number | undefined = undefined;
 
-const { showFileTree } = defineProps<{ showFileTree: boolean }>();
-
-const fetchFiles = async () => {
-  loading.value = true;
-  files.value = await getFiles(undefined, { name: searchQuery.value });
-  loading.value = false;
-  if (searchQuery.value) {
-    breadcrumb.value = [];
-  }
-};
-
 const fetchFilesDetail = async (file: FileProps) => {
   if (file.type === 'folder') {
-    loading.value = true;
-    files.value = await getFiles(file.id, {});
-    breadcrumb.value.push(file);
-    loading.value = false;
+    emit("set-breadcrumb", [...breadcrumb, file]);
+    emit("fetch-files", file.id)
   }
 };
 
-const onBreadcrumbClick = async (index: number) => {
-  breadcrumb.value = breadcrumb.value.slice(0, index + 1);
-  if (index === -1) {
+const fetchFiles = async (
+  id: number,
+  index: number,
+) => {
+  emit("fetch-files", id);
+  if (index < 0) {
     searchQuery.value = "";
-    fetchFiles();
-    return;
-  } else {
-    loading.value = true;
-    files.value = await getFiles(breadcrumb.value[index].id, {});
-    loading.value = false;
   }
-};
+}
+
+const setBreadcrumb = async (
+  newbreadcrumb: FileProps[]
+) => {
+  emit("set-breadcrumb", newbreadcrumb)
+}
+const refetchFiles = async () => {
+  if (breadcrumb.length > 0) {
+    emit("fetch-files", breadcrumb[breadcrumb.length - 1].id)
+  } else {
+    emit("fetch-files")
+  }
+  folderName.value = "";
+  selectedFile.value = null;
+  newFileName.value = "";
+  isModalOpen.value = null;
+}
 
 const createFolder = async () => {
   await upsertFile({
     name: folderName.value,
     type: "folder",
-    parent_id: breadcrumb.value.length > 0 ? breadcrumb.value[breadcrumb.value.length - 1].id : undefined,
+    parent_id: breadcrumb.length > 0 ? breadcrumb[breadcrumb.length - 1].id : undefined,
     size: 0
   });
 
-  if (breadcrumb.value.length > 0) {
-    loading.value = true;
-    files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id, {});
-    loading.value = false;
-  } else {
-    fetchFiles();
-  }
-  folderName.value = "";
-  isModalOpen.value = null;
-  emit('refresh-files');
+  refetchFiles();
 };
 
 const uploadFiles = async () => {
@@ -161,20 +161,11 @@ const uploadFiles = async () => {
     await upsertFile({
       name: selectedFile.value.name,
       type: "file",
-      parent_id: breadcrumb.value.length > 0 ? breadcrumb.value[breadcrumb.value.length - 1].id : undefined,
+      parent_id: breadcrumb.length > 0 ? breadcrumb[breadcrumb.length - 1].id : undefined,
       size: selectedFile.value.size
     });
 
-    if (breadcrumb.value.length > 0) {
-      loading.value = true;
-      files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id, {});
-      loading.value = false;
-    } else {
-      fetchFiles();
-    }
-    selectedFile.value = null;
-    isModalOpen.value = null;
-    emit('refresh-files');
+    refetchFiles();
   }
 };
 
@@ -184,16 +175,7 @@ const editFile = async () => {
       name: newFileName.value,
     });
 
-    if (breadcrumb.value.length > 0) {
-      loading.value = true;
-      files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id, {});
-      loading.value = false;
-    } else {
-      fetchFiles();
-    }
-    newFileName.value = "";
-    isModalOpen.value = null;
-    emit('refresh-files');
+    refetchFiles();
   }
 };
 
@@ -201,16 +183,7 @@ const deleteFile = async () => {
   if (selectedData.value) {
     await destroyFile(selectedData.value.id);
 
-    if (breadcrumb.value.length > 0) {
-      loading.value = true;
-      files.value = await getFiles(breadcrumb.value[breadcrumb.value.length - 1].id, {});
-      loading.value = false;
-    } else {
-      fetchFiles();
-    }
-
-    isModalOpen.value = null;
-    emit('refresh-files');
+    refetchFiles();
   }
 };
 
@@ -224,11 +197,11 @@ const openModal = (file: FileProps | undefined, modalName: string) => {
 watch(searchQuery, () => {
   clearTimeout(timeout);
   timeout = setTimeout(() => {
-    fetchFiles();
+    emit("fetch-files", { id: undefined, params: { name: searchQuery } })
   }, 500);
 });
 
-onMounted(fetchFiles);
+onMounted(emit("fetch-files"));
 </script>
 
 <style scoped>

@@ -2,9 +2,7 @@
   <div>
     <!-- Folder Item -->
     <div class="folder" @click="toggle(file.id)">
-      <span v-if="file.type === 'folder'">{{ isOpen ? "📂" : "📁" }} </span>
-      <span v-else>📄</span>
-      {{ file.name }}
+      <span>{{ isOpen ? "📂" : "📁" }} </span>{{ file.name }}
     </div>
 
     <!-- Loading State -->
@@ -13,7 +11,8 @@
     <!-- Child Items (Sub-Folders & Files) -->
     <transition name="fade">
       <div class="child-items" v-if="isOpen && file.type === 'folder'">
-        <FileTreeItem v-for="child in childList" :key="child.id" :file="child" />
+        <FileTreeItem v-for="child in childList" :key="child.id" :breadcrumb :file="child" @fetch-files="fetchFiles"
+          @set-breadcrumb="setBreadcrumb" />
       </div>
     </transition>
   </div>
@@ -25,25 +24,37 @@ import type { Ref } from "vue";
 import type { FileProps } from "../types";
 import { getFiles } from "../services/api";
 
-const { file } = defineProps<{ file: FileProps }>();
+const { file, breadcrumb } = defineProps<{ file: FileProps, breadcrumb: FileProps[] }>();
+const emit = defineEmits(["fetch-files", "set-breadcrumb"]);
+
+const fetchFiles = async (
+  id: number | undefined,
+) => {
+  emit("fetch-files", id)
+};
+
+const setBreadcrumb = async (
+  newbreadcrumb: FileProps[]
+) => {
+  emit("set-breadcrumb", newbreadcrumb)
+}
 
 const childList: Ref<FileProps[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const isOpen: Ref<boolean> = ref(false);
-const isFetched: Ref<boolean> = ref(false); // ✅ Prevents redundant API calls
 
 const toggle = async (id: number) => {
-  if (file.type === 'file') return; // Skip if no child
-
   isOpen.value = !isOpen.value;
+  loading.value = true;
 
-  if (!isFetched.value) {
-    loading.value = true;
-    childList.value = await getFiles(id, { type: "folder" });
-    loading.value = false;
-    isFetched.value = true; // ✅ Only fetch once
-  }
+  const newBreadcrumb = breadcrumb.slice(0, breadcrumb.findIndex(b => b.id === file.id) + 1);
+  setBreadcrumb([...newBreadcrumb, file]);
+
+  childList.value = await getFiles(id, { type: "folder" });
+  loading.value = false;
+  fetchFiles(id)
 };
+
 </script>
 
 <style scoped>
