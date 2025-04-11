@@ -1,13 +1,9 @@
+import type { Context } from "elysia";
 
-import type { Context } from 'elysia';
-
-export const responseFormat = async <T>(
-  promise: Promise<T>,
-  ctx: Context,
-) => {
+export const responseFormat = async <T>(promise: Promise<T>, ctx: Context) => {
   try {
     const data = await promise;
-    return returnSuccess(ctx, 200, 'Success', data);
+    return returnSuccess(ctx, 200, "Success", data);
   } catch (error: unknown) {
     return returnNonSuccess(ctx, 500, (error as Error).message);
   }
@@ -17,10 +13,10 @@ export function returnSuccess(
   ctx: Context,
   statusCode: number,
   message: string,
-  data: any
+  data: any,
 ) {
   const returnResponse = {
-    status: 'OK',
+    status: "OK",
     message,
     data,
   };
@@ -30,7 +26,7 @@ export function returnSuccess(
 export function returnNonSuccess(
   ctx: Context,
   statusCode: number,
-  message: string
+  message: string,
 ) {
-  return (ctx.set.status = statusCode), { status: 'ERROR', message };
+  return (ctx.set.status = statusCode), { status: "ERROR", message };
 }

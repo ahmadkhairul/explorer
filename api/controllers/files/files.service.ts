@@ -1,11 +1,12 @@
-import { db } from "../../db/db";
-import { files } from "./files.schema";
-import { eq, and, isNull, ilike } from "drizzle-orm";
+import { and, eq, ilike, isNull } from "drizzle-orm";
+
+import { db } from "@/db/db";
 import {
   type BodyProps,
   type ParamsProps,
-  type QueryProps
-} from "../../types/files";
+  type QueryProps,
+} from "@/types/files";
+import { files } from "@/controllers/files/files.schema";
 
 export class FileService {
   query?: QueryProps;
@@ -18,8 +19,19 @@ export class FileService {
     this.body = body;
   }
 
-  async get(query?: QueryProps, params?: ParamsProps) {
+  async findOne(id?: number, user_id?: number) {
+    const [file] = await db
+      .select()
+      .from(files)
+      .where(eq(files.id, Number(id)));
 
+    if (!file) throw new Error("File not found");
+    if (file.user_id !== user_id) throw new Error("Unauthorized");
+
+    return file;
+  }
+
+  async get(query?: QueryProps, params?: ParamsProps) {
     return await db
       .select({
         id: files.id,
@@ -31,6 +43,9 @@ export class FileService {
       .from(files)
       .where(
         and(
+          params?.user_id !== undefined
+            ? eq(files.user_id, Number(params.user_id))
+            : undefined,
           params?.parent_id !== undefined
             ? eq(files.parent_id, Number(params.parent_id))
             : isNull(files.parent_id),
@@ -42,31 +57,45 @@ export class FileService {
   }
 
   async create(body: BodyProps) {
-    const { name, type, parent_id, size } = body;
+    const { name, type, parent_id, size, user_id, path } = body;
 
-    return await db.insert(files).values({
-      name,
-      type,
-      parent_id: parent_id ?? null,
-      size: type === "file" ? size ?? 0 : 0,
-    }).returning();
+    return await db
+      .insert(files)
+      .values({
+        name,
+        type,
+        path,
+        user_id: Number(user_id),
+        parent_id: parent_id ? Number(parent_id) : null,
+        size: type === "file" ? (size ?? 0) : 0,
+      })
+      .returning();
   }
 
   async update(params: ParamsProps, body: BodyProps) {
-    const { id } = params;
-    const { name, type } = body;
+    const { id, user_id } = params;
+    const { name, type, parent_id } = body;
+    await this.findOne(id, user_id);
 
-    return await db.update(files).set({
-      name,
-      type
-    }).where(eq(files.id, Number(id))).returning();
+    return await db
+      .update(files)
+      .set({
+        name,
+        type,
+        ...(parent_id && { parent_id: Number(parent_id) }),
+      })
+      .where(eq(files.id, Number(id)))
+      .returning();
   }
 
   async delete(params: ParamsProps) {
+    const { id, user_id } = params;
+    await this.findOne(id, user_id);
+
     return await db
       .update(files)
       .set({ deleted_at: new Date() })
-      .where(eq(files.id, Number(params.id)))
+      .where(eq(files.id, Number(id)))
       .returning();
   }
 }

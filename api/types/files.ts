@@ -6,36 +6,38 @@ export interface QueryProps {
 }
 
 export interface BodyProps {
-  name: string; 
-  type: "folder" | "file"; 
-  parent_id?: number; 
+  name: string;
+  type: "folder" | "file";
+  user_id: number;
+  path?: string;
+  parent_id?: number | string;
   size?: number;
 }
 
 export interface ParamsProps {
   id?: number;
-  parent_id?: number; 
+  user_id: number;
+  parent_id?: number;
 }
 
 export const bodySchema = {
   body: t.Object({
-    name: t.String(),
-    type: t.Union([t.Literal("folder"), t.Literal("file")]),
-    parent_id: t.Optional(t.Number()),
-    size: t.Optional(t.Number()),
+    name: t.Optional(t.String()),
+    file: t.Optional(t.File()),
+    parent_id: t.Optional(t.String()),
   }),
-}
+};
 
 export const bodyEditSchema = {
   body: t.Object({
     name: t.String(),
-    type: t.Union([t.Literal("folder"), t.Literal("file")]),
+    parent_id: t.Optional(t.String()),
   }),
-}
+};
 
 export const querySchema = {
   query: {
     name: t.String(),
     type: t.Union([t.Literal("folder"), t.Literal("file")]),
-  }
-}
+  },
+};
