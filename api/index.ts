@@ -49,6 +49,7 @@ app.use(
 );
 
 app.post("/api/v1/login", login);
+app.post("/api/v1/register", createUsers, userBodySchema);
 app.group("/api/v1", (app) =>
   app
     // @ts-ignore
@@ -75,7 +76,6 @@ app.group("/api/v1", (app) =>
     .put("/files/:id", updateFiles, fileBodyEditSchema)
     .delete("/files/:id", deleteFiles)
 
-    .post("/register", createUsers, userBodySchema)
     .get("/user", getUsers)
     .put("/user", updateUsers, userBodySchema)
 );
@@ -105,4 +105,4 @@ app.group("/api-admin/v1", (app) =>
     .delete("/users/:id", deleteUsers)
 );
 
-app.listen(3000);
+app.listen(3000, () => console.log("Server running on http://localhost:3000"));
