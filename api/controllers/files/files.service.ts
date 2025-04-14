@@ -32,6 +32,23 @@ export class FileService {
   }
 
   async get(query?: QueryProps, params?: ParamsProps) {
+    const whereConditions = [
+      params?.user_id !== undefined
+        ? eq(files.user_id, Number(params.user_id))
+        : undefined,
+
+      query?.all
+        ? undefined 
+        : params?.parent_id !== undefined
+          ? eq(files.parent_id, Number(params.parent_id))
+          : isNull(files.parent_id), 
+
+      query?.name ? ilike(files.name, `%${query.name}%`) : undefined,
+      query?.type ? ilike(files.type, `%${query.type}%`) : undefined,
+
+      isNull(files.deleted_at), 
+    ].filter(Boolean); 
+
     return await db
       .select({
         id: files.id,
@@ -41,19 +58,7 @@ export class FileService {
         size: files.size,
       })
       .from(files)
-      .where(
-        and(
-          params?.user_id !== undefined
-            ? eq(files.user_id, Number(params.user_id))
-            : undefined,
-          params?.parent_id !== undefined
-            ? eq(files.parent_id, Number(params.parent_id))
-            : isNull(files.parent_id),
-          query?.name ? ilike(files.name, `%${query.name}%`) : undefined,
-          query?.type ? ilike(files.type, `%${query.type}%`) : undefined,
-          isNull(files.deleted_at)
-        )
-      );
+      .where(and(...whereConditions));
   }
 
   async create(body: BodyProps) {
@@ -67,7 +72,7 @@ export class FileService {
         path,
         user_id: Number(user_id),
         parent_id: parent_id ? Number(parent_id) : null,
-        size: type === "file" ? (size ?? 0) : 0,
+        size,
       })
       .returning();
   }

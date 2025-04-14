@@ -7,4 +7,4 @@ const pool = new Pool({
     "postgres://postgres:00000000@localhost:5432/explorer",
 });
 
-export const db = drizzle(pool);
+export const db = drizzle(pool, { logger: true });

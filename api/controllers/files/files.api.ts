@@ -4,7 +4,7 @@ import fs from "fs/promises";
 
 import { FileService } from "@/controllers/files/files.service";
 import { responseFormat } from "@/helper/response";
-import type { BodyProps } from "@/types/files";
+import type { BodyProps, CreateProps } from "@/types/files";
 import { currentUser, randStr } from "@/helper/utils";
 
 const fileService = new FileService();
@@ -27,10 +27,10 @@ export const getFiles = async (ctx: Context) => {
   );
 };
 
-export const createFiles = async (ctx: Context<{ body: BodyProps }>) => {
+export const createFiles = async (ctx: Context<{ body: CreateProps }>) => {
   const { id } = await currentUser(ctx);
-  // @ts-ignore
-  const file = await ctx.body?.file;
+
+  const file = ctx.body?.file;
   const parent_id = ctx.body?.parent_id;
   let name = ctx.body?.name;
 

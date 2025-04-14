@@ -11,6 +11,7 @@ export interface BodyProps {
 export interface LoginProps {
   username: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 export interface ParamsProps {
@@ -31,7 +32,7 @@ export const bodySchema = {
 };
 
 export type JWTContext = {
-  sign: (payload: any) => Promise<string>;
+  sign: (payload: any, custom: any) => Promise<string>;
   verify: (token: string) => Promise<any>;
 };
 

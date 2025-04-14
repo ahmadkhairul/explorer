@@ -4,7 +4,7 @@
     <div v-if="loading" class="loading">⏳ Loading...</div>
 
     <!-- Folder List -->
-    <div v-else class="folder-list">
+    <div class="h-full" v-else>
       <FolderItem v-for="file in folders" :breadcrumb :key="file.id" :file="file" @fetch-files="fetchFiles"
         @set-breadcrumb="setBreadcrumb" />
     </div>
@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import FolderItem from "./FileTreeItem.vue";
-import { type FileProps } from "../types";
+import FolderItem from "@/components/file-tree-item.vue";
+import { type FileProps } from "@/types";
 import { onMounted, ref } from "vue";
 import type { Ref } from "vue";
-import { getFiles } from "../services/api";
+import { getFiles } from "@/services/file";
 
 const loading: Ref<boolean> = ref(true);
 const folders: Ref<FileProps[]> = ref([]);
@@ -42,15 +42,14 @@ const fetchFolder = async () => {
   loading.value = false;
 };
 
-onMounted(fetchFolder());
+onMounted(fetchFolder);
 </script>
 
 <style scoped>
 .folder-explorer {
+  height: 100%;
   width: 100%;
-  max-width: 300px;
-  min-width: 250px;
-  overflow-y: auto;
+  overflow: auto;
 }
 
 /* Loading text */

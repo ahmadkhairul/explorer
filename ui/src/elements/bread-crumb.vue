@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { type FileProps } from "../types";
+import { type FileProps } from "@/types";
 
 const emit = defineEmits(["set-breadcrumb", "fetch-files"]);
 const {

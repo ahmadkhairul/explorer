@@ -1,12 +1,9 @@
 import bcrypt from "bcrypt";
-import { type Context } from "elysia";
 
-import {
-  returnNonSuccess,
-  returnSuccess,
-} from "@/helper/response";
+import { returnNonSuccess, returnSuccess } from "@/helper/response";
 import type { ContextLoginProps, ParamsProps } from "@/types/users";
 import { UserService } from "@/controllers/users/users.service";
+import { currentUser } from "@/helper/utils";
 
 const userService = new UserService();
 
@@ -21,9 +18,20 @@ export const login = async (ctx: ContextLoginProps) => {
     const isMatch = await bcrypt.compare(body.password, password as string);
     if (!isMatch) throw "error";
 
-    const token = await jwt.sign(rest);
-    return returnSuccess(ctx, 200, "login success", { token });
+    const token = await jwt.sign(rest, {
+      exp: body.rememberMe ? "48h" : "2h",
+    });
+    return returnSuccess(ctx, 200, "login success", { ...rest, token });
   } catch (err) {
     return returnNonSuccess(ctx, 403, "username atau password salah");
+  }
+};
+
+export const auth = async (ctx: ContextLoginProps) => {
+  try {
+    const user = await currentUser(ctx);
+    return returnSuccess(ctx, 200, "auth success", { user });
+  } catch (err) {
+    return returnNonSuccess(ctx, 403, "Expired");
   }
 };

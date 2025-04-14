@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="h-full">
     <!-- Folder Item -->
     <div class="folder" @click="toggle(file.id)">
-      <span>{{ isOpen ? "📂" : "📁" }} </span>{{ file.name }}
+      <span>{{ isOpen ? "🔽" : "▶️" }} </span>📁 {{ file.name }}
     </div>
 
     <!-- Loading State -->
@@ -19,13 +19,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import {
+  // onMounted, 
+  ref
+} from "vue";
 import type { Ref } from "vue";
-import type { FileProps } from "../types";
-import { getFiles } from "../services/api";
+import type { FileProps } from "@/types";
+import { getFiles } from "@/services/file";
+// import { useFirstRenderStore } from "@/stores/first-render";
+import { useFolderIDStore } from "@/stores/current-folder";
 
 const { file, breadcrumb } = defineProps<{ file: FileProps, breadcrumb: FileProps[] }>();
 const emit = defineEmits(["fetch-files", "set-breadcrumb"]);
+// const firstRender = useFirstRenderStore();
+const currentFolder = useFolderIDStore();
 
 const fetchFiles = async (
   id: number | undefined,
@@ -46,6 +53,8 @@ const isOpen: Ref<boolean> = ref(false);
 const toggle = async (id: number) => {
   isOpen.value = !isOpen.value;
   loading.value = true;
+  // firstRender.setFirstRender(false);
+  currentFolder.setFolderID(id)
 
   const newBreadcrumb = breadcrumb.slice(0, breadcrumb.findIndex(b => b.id === file.id) + 1);
   setBreadcrumb([...newBreadcrumb, file]);
@@ -55,6 +64,14 @@ const toggle = async (id: number) => {
   fetchFiles(id)
 };
 
+// const fetchFolder = async () => {
+//   isOpen.value = true
+//   loading.value = true;
+//   childList.value = await getFiles(file.id, { type: "folder" });
+//   loading.value = false;
+// };
+
+// onMounted(fetchFolder);
 </script>
 
 <style scoped>
@@ -67,6 +84,7 @@ const toggle = async (id: number) => {
   display: flex;
   align-items: center;
   gap: 5px;
+  white-space: nowrap;
 }
 
 .folder:hover {
@@ -83,7 +101,6 @@ const toggle = async (id: number) => {
 /* Child Folders */
 .child-items {
   margin-left: 20px;
-  border-left: 2px dashed #ddd;
   padding-left: 10px;
 }
 

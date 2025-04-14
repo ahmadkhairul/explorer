@@ -15,6 +15,19 @@ It allows users to **navigate folders, manage files**, and interact with a **bac
 ## 🛠 Installation
 
 Bun is required for both UI and API.  
+
 [Download Bun](https://bun.sh/)
+
 Postgresql
+
 [Download Postgresql](https://www.postgresql.org/download/)
+
+## Setup
+
+1. run bun install on api and ui
+2. run bun run dev on api and ui
+
+## Login 
+
+username : admin
+password : adminrahasia
