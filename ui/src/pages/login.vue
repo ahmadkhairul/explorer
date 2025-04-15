@@ -59,9 +59,7 @@ import { nextTick, ref } from 'vue'
 import { login } from '@/services'
 import { setToken as setStorageToken } from '@/utils/storage'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const auth = useAuthStore()
 
 const username = ref('')

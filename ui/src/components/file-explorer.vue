@@ -1,9 +1,155 @@
+<script setup lang="ts">
+import { nextTick, ref, watch } from "vue";
+import type { Ref } from 'vue';
+import { upsertFile, updateFile, destroyFile, getFiles } from "@/services/file";
+import { type FileProps } from "@/types";
+import Modal from "@/elements/modal.vue";
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from "@/stores/auth";
+import { useFileTreeStore } from "@/stores/file-tree";
+// import Breadcrumb from "@/elements/bread-crumb.vue";
+
+const firstrender: Ref<boolean> = ref(true);
+const loading: Ref<boolean> = ref(false);
+const error: Ref<any> = ref(null);
+const files: Ref<FileProps[] | null> = ref(null);
+
+const isModalOpen: Ref<string | null> = ref(null);
+const folderName: Ref<string> = ref("");
+const selectedFile: Ref<File | null> = ref(null);
+const showActions: Ref<boolean> = ref(false);
+const newFileName: Ref<string> = ref("");
+const selectedData: Ref<FileProps | null> = ref(null);
+const searchQuery: Ref<string> = ref("");
+
+const emit = defineEmits(["toggle"]);
+const { show } = defineProps<{ show: boolean }>();
+
+const fileTree = useFileTreeStore();
+const { setselected } = fileTree;
+const { selected } = storeToRefs(fileTree);
+
+const authStore = useAuthStore();
+
+const handleFileUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    selectedFile.value = target.files[0];
+  }
+};
+
+const fetchfiles = async (
+  id: number | undefined,
+  params: {
+    name?: string,
+    type?: string,
+    all?: boolean,
+  }
+) => {
+  try {
+    loading.value = true;
+    files.value = await getFiles(id, params);
+    loading.value = false;
+    if (firstrender.value) firstrender.value = false;
+  } catch (err: any) {
+    error.value = err
+  }
+};
+
+const refetchfiles = async () => {
+  if (selected.value?.id) {
+    fetchfiles(selected.value?.id, {})
+  } else {
+    fetchfiles(undefined, {})
+  }
+  folderName.value = "";
+  selectedFile.value = null;
+  newFileName.value = "";
+  isModalOpen.value = null;
+}
+
+const createFolder = async () => {
+  await upsertFile({
+    name: folderName.value,
+    parent_id: selected.value ? selected.value?.id : undefined,
+  });
+
+  refetchfiles();
+};
+
+const uploadFiles = async () => {
+  if (selectedFile.value) {
+    await upsertFile({
+      file: selectedFile.value,
+      parent_id: selected.value ? selected.value?.id : undefined,
+    });
+
+    refetchfiles();
+  }
+};
+
+const editFile = async () => {
+  if (selectedData.value) {
+    await updateFile(selectedData.value.id, {
+      name: newFileName.value,
+    });
+
+    refetchfiles();
+  }
+};
+
+const deleteFile = async () => {
+  if (selectedData.value) {
+    await destroyFile(selectedData.value.id);
+
+    refetchfiles();
+  }
+};
+
+const logout = async () => {
+  authStore.logout();
+  await nextTick();
+  window.location.reload()
+}
+
+const openModal = (file: FileProps | undefined, modalName: string) => {
+  if (file) {
+    selectedData.value = file;
+  }
+  isModalOpen.value = modalName;
+};
+
+let timeout: number | undefined = undefined;
+
+watch(searchQuery, () => {
+  clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    fetchfiles(
+      selected.value ? selected.value?.id : undefined,
+      {
+        name: searchQuery.value,
+        ...(searchQuery.value && { all: true })
+      }
+    )
+  }, 500);
+});
+
+watch(selected, () => {
+  searchQuery.value = '';
+  clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    fetchfiles(selected.value ? selected.value?.id : undefined, {})
+  }, 500);
+});
+
+</script>
+
 <template>
   <!-- File List Header (Search & Buttons) -->
   <div class="file-list-header p-3 border-b-[1px] border-blue-400">
     <div class="file-button-container">
-      <button class="btn" @click="$emit('toggle-file-tree')">
-        {{ showFileTree ? "✖️" : "☰" }}
+      <button class="btn" @click="$emit('toggle')">
+        {{ show ? "✖️" : "☰" }}
       </button>
       <button class="btn" @click="openModal(undefined, 'new-folder')" :disabled="searchQuery.length > 0">📁 folder
         ➕</button>
@@ -48,15 +194,21 @@
     </div>
   </Modal>
 
+  <!-- Breadcrumb -->
   <!-- <Breadcrumb :breadcrumb @fetch-files="fetchFiles" @set-breadcrumb="setBreadcrumb" /> -->
 
-  <div v-if="loading" class="loading">⏳ Loading...</div>
-  <!-- <div v-else-if="isFirstRender" class="loading">Silakkan pilih folder yang ingin dilihat</div> -->
-  <div v-else-if="files.length === 0" class="loading">Folder Masih Kosong</div>
+  <div v-if="loading" class="loading">⏳ Loading... </div>
+
+  <div v-else-if="firstrender" class="loading">Silakkan pilih folder yang ingin dilihat</div>
+
+  <div v-else-if="files && files.length === 0" class="loading">
+    Folder Masih Kosong
+  </div>
+
   <!-- File List -->
   <div class="container-file" v-else>
     <div class="flex justify-between items-center" v-for="file in files" :key="file.id">
-      <div class="container-item"> <!-- @click="fetchFilesDetail(file)" for open file -->
+      <div class="container-item" @dblclick="setselected(file)"> <!-- @click="fetchFiles(file.id)" for open file -->
         <div v-if="file.type === 'folder'">📁</div>
         <div v-else>📄</div>
         <p class="ellipsis">{{ file.name }}</p>
@@ -68,165 +220,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from "vue";
-import type { Ref } from 'vue';
-import { upsertFile, updateFile, destroyFile } from "@/services/file";
-import { type FileProps } from "@/types";
-import Modal from "@/elements/modal.vue";
-// import { useFirstRenderStore } from '@/stores/first-render';
-import { storeToRefs } from 'pinia';
-import { useFolderIDStore } from "@/stores/current-folder";
-import { clearStorages } from "@/utils/storage";
-import router from "@/router";
-import { useAuthStore } from "@/stores/auth";
-// import Breadcrumb from "@/elements/bread-crumb.vue";
-
-const isModalOpen: Ref<string | null> = ref(null);
-const folderName: Ref<string> = ref("");
-const selectedFile: Ref<File | null> = ref(null);
-const showActions: Ref<boolean> = ref(false);
-const newFileName: Ref<string> = ref("");
-const selectedData: Ref<FileProps | null> = ref(null);
-const searchQuery: Ref<string> = ref("");
-
-const emit = defineEmits([
-  "toggle-file-tree",
-  "set-breadcrumb",
-  "fetch-files"
-]);
-
-const {
-  // breadcrumb,
-  loading,
-  files,
-  showFileTree,
-} = defineProps<{
-  // breadcrumb: FileProps[],
-  loading: boolean,
-  showFileTree: boolean,
-  files: FileProps[],
-}>();
-
-// const firstRenderStore = useFirstRenderStore();
-// const { isFirstRender } = storeToRefs(firstRenderStore);
-const folderIDStore = useFolderIDStore();
-const { folderID } = storeToRefs(folderIDStore)
-
-const authStore = useAuthStore();
-
-const handleFileUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (target.files && target.files.length > 0) {
-    selectedFile.value = target.files[0];
-  }
-};
-
-let timeout: number | undefined = undefined;
-
-// const fetchFilesDetail = async (file: FileProps) => {
-//   if (file.type === 'folder') {
-//     emit("set-breadcrumb", [...breadcrumb, file]);
-//     emit("fetch-files", file.id)
-//   }
-// };
-
-// const fetchFiles = async (
-//   id: number,
-//   index: number,
-// ) => {
-//   emit("fetch-files", id);
-//   if (index < 0) {
-//     searchQuery.value = "";
-//   }
-// }
-
-// const setBreadcrumb = async (
-//   newbreadcrumb: FileProps[]
-// ) => {
-//   emit("set-breadcrumb", newbreadcrumb)
-// }
-
-const refetchFiles = async () => {
-  if (folderID) {
-    emit("fetch-files", folderID.value)
-  } else {
-    emit("fetch-files")
-  }
-  folderName.value = "";
-  selectedFile.value = null;
-  newFileName.value = "";
-  isModalOpen.value = null;
-}
-
-const createFolder = async () => {
-  await upsertFile({
-    name: folderName.value,
-    parent_id: folderID ? folderID.value : undefined,
-  });
-
-  refetchFiles();
-};
-
-const uploadFiles = async () => {
-  if (selectedFile.value) {
-    await upsertFile({
-      file: selectedFile.value,
-      parent_id: folderID ? folderID.value : undefined,
-    });
-
-    refetchFiles();
-  }
-};
-
-const editFile = async () => {
-  if (selectedData.value) {
-    await updateFile(selectedData.value.id, {
-      name: newFileName.value,
-    });
-
-    refetchFiles();
-  }
-};
-
-const deleteFile = async () => {
-  if (selectedData.value) {
-    await destroyFile(selectedData.value.id);
-
-    refetchFiles();
-  }
-};
-
-const logout = async () => {
-  authStore.logout();
-  await nextTick();
-  window.location.reload()
-}
-
-const openModal = (file: FileProps | undefined, modalName: string) => {
-  if (file) {
-    selectedData.value = file;
-  }
-  isModalOpen.value = modalName;
-};
-
-watch(searchQuery, () => {
-  clearTimeout(timeout);
-  timeout = setTimeout(() => {
-    emit(
-      "fetch-files",
-      folderID ? folderID.value : undefined,
-      {
-        name: searchQuery.value,
-        ...(searchQuery.value && { all: true })
-      }
-    )
-  }, 500);
-});
-
-onMounted(emit("fetch-files"));
-</script>
 
 <style scoped>
 /* Header Layout */

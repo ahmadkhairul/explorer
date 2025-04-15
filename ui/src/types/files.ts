@@ -8,3 +8,9 @@ export interface FileProps {
   updated_at: string;
   deleted_at: string | null;
 };
+
+
+export interface FileNode extends FileProps {
+  expanded?: boolean
+  children?: FileNode[]
+}

@@ -1,49 +1,36 @@
+<script setup lang="ts">
+import FolderItem from "@/components/file-tree-item.vue";
+import { onMounted } from "vue";
+import { useFileTreeStore } from "@/stores/file-tree"
+import { storeToRefs } from "pinia";
+import { getFiles } from "@/services";
+
+const fileTree = useFileTreeStore()
+const { initTree, expandNode, setselected } = fileTree
+const { loading, error, tree, selected } = storeToRefs(fileTree)
+
+const fetchFiles = async () => {
+  const all = await getFiles(undefined, { type: 'folder', all: true })
+  initTree(all)
+}
+
+onMounted(fetchFiles)
+
+</script>
+
 <template>
   <div class="folder-explorer">
+    
     <!-- Loading State -->
-    <div v-if="loading" class="loading">⏳ Loading...</div>
+    <div v-if="loading" class="warning">Loading...</div>
+    <div v-else-if="error" class="warning">Error Occured</div>
 
     <!-- Folder List -->
     <div class="h-full" v-else>
-      <FolderItem v-for="file in folders" :breadcrumb :key="file.id" :file="file" @fetch-files="fetchFiles"
-        @set-breadcrumb="setBreadcrumb" />
+      <FolderItem v-for="file in tree" :key="file.id" :file="file" :selected="selected" @toggle="expandNode" @setselected="setselected"/>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import FolderItem from "@/components/file-tree-item.vue";
-import { type FileProps } from "@/types";
-import { onMounted, ref } from "vue";
-import type { Ref } from "vue";
-import { getFiles } from "@/services/file";
-
-const loading: Ref<boolean> = ref(true);
-const folders: Ref<FileProps[]> = ref([]);
-
-const emit = defineEmits(["fetch-files", "set-breadcrumb"]);
-const { breadcrumb } = defineProps<{ breadcrumb: FileProps[] }>();
-
-const fetchFiles = async (
-  id: number | undefined,
-) => {
-  emit("fetch-files", id)
-};
-
-const setBreadcrumb = async (
-  newbreadcrumb: FileProps[]
-) => {
-  emit("set-breadcrumb", newbreadcrumb)
-}
-
-const fetchFolder = async () => {
-  loading.value = true;
-  folders.value = await getFiles(undefined, { type: "folder" });
-  loading.value = false;
-};
-
-onMounted(fetchFolder);
-</script>
 
 <style scoped>
 .folder-explorer {
@@ -53,7 +40,7 @@ onMounted(fetchFolder);
 }
 
 /* Loading text */
-.loading {
+.warning {
   text-align: center;
   font-weight: bold;
   margin-top: 20px;
@@ -66,7 +53,7 @@ onMounted(fetchFolder);
   gap: 5px;
 }
 
-/* RESPONSIVE */
+/* Responsive */
 @media (max-width: 768px) {
   .folder-explorer {
     max-width: 100%;

@@ -1,81 +1,32 @@
+<script setup lang="ts">
+import type { FileNode } from "@/types";
+
+const emit = defineEmits(["toggle", "setselected"]);
+const { file, selected } = defineProps<{ file: FileNode, selected: FileNode | null }>();
+
+</script>
+
 <template>
   <div class="h-full">
-    <!-- Folder Item -->
-    <div class="folder" @click="toggle(file.id)">
-      <span>{{ isOpen ? "🔽" : "▶️" }} </span>📁 {{ file.name }}
+    <div class="folder" :class="{ selected: selected?.id === file.id }">
+      <span @click="$emit('toggle', file)">
+        {{ file.expanded ? "🔽" : "▶️" }}
+      </span>
+      <span class="w-full" @click="$emit('setselected', file)">
+        📁 {{ file.name }}
+      </span>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="loading">⏳ Loading...</div>
-
-    <!-- Child Items (Sub-Folders & Files) -->
     <transition name="fade">
-      <div class="child-items" v-if="isOpen && file.type === 'folder'">
-        <FileTreeItem v-for="child in childList" :key="child.id" :breadcrumb :file="child" @fetch-files="fetchFiles"
-          @set-breadcrumb="setBreadcrumb" />
+      <div class="child-items" v-if="file.expanded">
+        <FileTreeItem v-for="child in file.children" :key="child.id" :file="child" :selected="selected"
+          @toggle="$emit('toggle', $event)" @setselected="$emit('setselected', $event)" />
       </div>
     </transition>
   </div>
 </template>
 
-<script setup lang="ts">
-import {
-  // onMounted, 
-  ref
-} from "vue";
-import type { Ref } from "vue";
-import type { FileProps } from "@/types";
-import { getFiles } from "@/services/file";
-// import { useFirstRenderStore } from "@/stores/first-render";
-import { useFolderIDStore } from "@/stores/current-folder";
-
-const { file, breadcrumb } = defineProps<{ file: FileProps, breadcrumb: FileProps[] }>();
-const emit = defineEmits(["fetch-files", "set-breadcrumb"]);
-// const firstRender = useFirstRenderStore();
-const currentFolder = useFolderIDStore();
-
-const fetchFiles = async (
-  id: number | undefined,
-) => {
-  emit("fetch-files", id)
-};
-
-const setBreadcrumb = async (
-  newbreadcrumb: FileProps[]
-) => {
-  emit("set-breadcrumb", newbreadcrumb)
-}
-
-const childList: Ref<FileProps[]> = ref([]);
-const loading: Ref<boolean> = ref(false);
-const isOpen: Ref<boolean> = ref(false);
-
-const toggle = async (id: number) => {
-  isOpen.value = !isOpen.value;
-  loading.value = true;
-  // firstRender.setFirstRender(false);
-  currentFolder.setFolderID(id)
-
-  const newBreadcrumb = breadcrumb.slice(0, breadcrumb.findIndex(b => b.id === file.id) + 1);
-  setBreadcrumb([...newBreadcrumb, file]);
-
-  childList.value = await getFiles(id, { type: "folder" });
-  loading.value = false;
-  fetchFiles(id)
-};
-
-// const fetchFolder = async () => {
-//   isOpen.value = true
-//   loading.value = true;
-//   childList.value = await getFiles(file.id, { type: "folder" });
-//   loading.value = false;
-// };
-
-// onMounted(fetchFolder);
-</script>
-
 <style scoped>
-/* Folder Container */
 .folder {
   cursor: pointer;
   padding: 8px;
@@ -87,8 +38,10 @@ const toggle = async (id: number) => {
   white-space: nowrap;
 }
 
-.folder:hover {
-  background: #e0e0e0;
+.folder:hover,
+.selected {
+  background-color: #cce5ff;
+  color: #004085;
 }
 
 /* Loading Animation */
