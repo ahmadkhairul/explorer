@@ -7,6 +7,7 @@ import Modal from "@/elements/modal.vue";
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from "@/stores/auth";
 import { useFileTreeStore } from "@/stores/file-tree";
+import Spinner from '@/elements/spinner.vue';
 // import Breadcrumb from "@/elements/bread-crumb.vue";
 
 const firstrender: Ref<boolean> = ref(true);
@@ -52,6 +53,7 @@ const fetchfiles = async (
     loading.value = false;
     if (firstrender.value) firstrender.value = false;
   } catch (err: any) {
+    loading.value = false;
     error.value = err
   }
 };
@@ -70,6 +72,7 @@ const refetchfiles = async () => {
 
 const createFolder = async () => {
   try {
+    loading.value = true;
     const result = await upsertFile({
       name: folderName.value,
       parent_id: selected.value ? selected.value?.id : undefined,
@@ -79,12 +82,14 @@ const createFolder = async () => {
 
     await refetchfiles();
   } catch (err: any) {
+    loading.value = false;
     error.value = err
   }
 };
 
 const uploadFiles = async () => {
   try {
+    loading.value = true;
     if (selectedFile.value) {
       await upsertFile({
         file: selectedFile.value,
@@ -94,12 +99,14 @@ const uploadFiles = async () => {
       await refetchfiles();
     }
   } catch (err: any) {
+    loading.value = false;
     error.value = err
   }
 };
 
 const editFile = async () => {
   try {
+    loading.value = true;
     if (selectedData.value) {
       const result = await updateFile(selectedData.value.id, {
         name: newFileName.value,
@@ -110,12 +117,14 @@ const editFile = async () => {
       await refetchfiles();
     }
   } catch (err: any) {
+    loading.value = false;
     error.value = err
   }
 };
 
 const deleteFile = async () => {
   try {
+    loading.value = true;
     if (selectedData.value) {
       await destroyFile(selectedData.value.id);
 
@@ -124,6 +133,7 @@ const deleteFile = async () => {
       refetchfiles();
     }
   } catch (err: any) {
+    loading.value = false;
     error.value = err
   }
 };
@@ -192,7 +202,7 @@ onUnmounted(() => {
   <Modal :isOpen="isModalOpen === 'new-folder'" title="Create New Folder" @close="isModalOpen = null; folderName = '';">
     <div class="modal-content">
       <input v-model="folderName" placeholder="Folder Name" />
-      <button class="btn" @click="createFolder" :disabled="folderName.length < 1">Create</button>
+      <button class="btn" @click="createFolder" :disabled="folderName.length < 1 || loading">Create <Spinner v-if="loading" /></button>
     </div>
   </Modal>
 
@@ -201,7 +211,7 @@ onUnmounted(() => {
     @close="isModalOpen = null; selectedFile = null;">
     <div class="modal-content">
       <input @change="handleFileUpload" type="file" />
-      <button class="btn" @click="uploadFiles" :disabled="!selectedFile">Upload</button>
+      <button class="btn" @click="uploadFiles" :disabled="!selectedFile || loading">Upload <Spinner v-if="loading" /></button>
     </div>
   </Modal>
 
@@ -209,7 +219,7 @@ onUnmounted(() => {
   <Modal :isOpen="isModalOpen === 'rename-file'" title="Rename File" @close="isModalOpen = null; newFileName = ''">
     <div class="modal-content">
       <input v-model="newFileName" placeholder="New File Name" />
-      <button class="btn" @click="editFile" :disabled="newFileName.length < 1">Rename</button>
+      <button class="btn" @click="editFile" :disabled="newFileName.length < 1 || loading">Rename <Spinner v-if="loading" /></button>
     </div>
   </Modal>
 
@@ -217,7 +227,7 @@ onUnmounted(() => {
   <Modal :isOpen="isModalOpen === 'delete-file'" title="Delete File" @close="isModalOpen = null">
     <div class="modal-content">
       <p>Are you sure you want to delete this file? file inside folder will be deleted as well</p>
-      <button class="btn" @click="deleteFile">Delete</button>
+      <button class="btn" @click="deleteFile" :disabled="loading">Delete <Spinner v-if="loading" /></button>
     </div>
   </Modal>
 

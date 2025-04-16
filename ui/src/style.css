@@ -42,6 +42,16 @@ h1 {
   transition: border-color 0.25s;
   min-width: 120px;
   height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn:disabled {
+  color: gray;
+  cursor: not-allowed;
 }
 
 button:focus,
