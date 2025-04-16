@@ -3,7 +3,7 @@ import { nextTick, onUnmounted, ref, watch } from "vue";
 import type { Ref } from 'vue';
 import { upsertFile, updateFile, destroyFile, getFiles } from "@/services/file";
 import { type FileProps } from "@/types";
-import Modal from "@/elements/modal.vue";
+import Modal from "@/elements/popup.vue";
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from "@/stores/auth";
 import { useFileTreeStore } from "@/stores/file-tree";
