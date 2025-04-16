@@ -6,6 +6,7 @@ import { FileService } from "@/controllers/files/files.service";
 import { responseFormat } from "@/helper/response";
 import { currentUser, randStr } from "@/helper/utils";
 import type { BodyProps, CreateProps } from "@/types/files";
+import saveFile from "@/helper/upload";
 
 const fileService = new FileService();
 
@@ -40,11 +41,7 @@ export const createFiles = async (ctx: Context<{ body: CreateProps }>) => {
   // as default with no file saving as folder, is there file name will be unused and use file name instead
   if (file) {
     const saveName = randStr(5) + file.name;
-    const savePath = path.resolve("uploads", saveName);
-    const buffer = await file.arrayBuffer();
-    await fs.writeFile(savePath, Buffer.from(buffer));
-
-    filePath = "./uploads/" + saveName;
+    filePath = await saveFile(saveName, file);
     size = file.size;
     name = file.name;
     type = "file";

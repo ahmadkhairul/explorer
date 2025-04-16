@@ -23,6 +23,7 @@
     "@elysiajs/cors": "^1.2.0",
     "@elysiajs/jwt": "^1.2.0",
     "@elysiajs/static": "^1.2.0",
+    "@supabase/supabase-js": "^2.49.4",
     "@types/bcrypt": "^5.0.2",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
@@ -31,6 +32,7 @@
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "pg": "^8.14.1",
     "postgres": "^3.4.5"
   }
 }

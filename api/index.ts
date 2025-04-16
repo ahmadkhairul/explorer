@@ -106,4 +106,6 @@ app.group("/api-admin/v1", (app) =>
     .delete("/users/:id", deleteUsers),
 );
 
-app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+app.listen(process.env.APP_PORT || 3000, () =>
+  console.log("Server running on http://localhost:3000"),
+);
