@@ -6,6 +6,7 @@ It allows users to **navigate folders, manage files**, and interact with a **bac
 ---
 
 ## 🚀 Features
+✔ **Authoziation** – Login, every user has their own file
 ✔ **Folder Tree Navigation** – Browse directories like Windows Explorer  
 ✔ **File Management** – Add, delete, rename and search files   
 ✔ **API Integration** – Backend powered by **Elysia + Drizzle ORM**  
@@ -30,4 +31,10 @@ Postgresql
 ## Login 
 
 username : admin
+
 password : adminrahasia
+
+## Upcoming feature not soon
+1. **Preview** – File can be preview and can be downloaded
+2. **Recycle Bin** - Recycle file that has been deleted
+3. **User Management** - User management system for role admin

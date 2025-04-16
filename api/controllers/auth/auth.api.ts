@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 
-import { returnNonSuccess, returnSuccess } from "@/helper/response";
-import type { ContextLoginProps, ParamsProps } from "@/types/users";
 import { UserService } from "@/controllers/users/users.service";
+import { returnNonSuccess, returnSuccess } from "@/helper/response";
 import { currentUser } from "@/helper/utils";
+import type { ContextLoginProps, ParamsProps } from "@/types/users";
 
 const userService = new UserService();
 

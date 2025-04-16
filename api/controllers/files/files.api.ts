@@ -1,11 +1,11 @@
-import type { Context } from "elysia";
-import path from "path";
 import fs from "fs/promises";
+import path from "path";
+import type { Context } from "elysia";
 
 import { FileService } from "@/controllers/files/files.service";
 import { responseFormat } from "@/helper/response";
-import type { BodyProps, CreateProps } from "@/types/files";
 import { currentUser, randStr } from "@/helper/utils";
+import type { BodyProps, CreateProps } from "@/types/files";
 
 const fileService = new FileService();
 
@@ -29,7 +29,7 @@ export const getFiles = async (ctx: Context) => {
 
 export const createFiles = async (ctx: Context<{ body: CreateProps }>) => {
   const { id } = await currentUser(ctx);
-
+  // file for file, name for creating folder
   const file = ctx.body?.file;
   const parent_id = ctx.body?.parent_id;
   let name = ctx.body?.name;
@@ -37,13 +37,14 @@ export const createFiles = async (ctx: Context<{ body: CreateProps }>) => {
   let filePath = null;
   let size = 0;
   let type = "folder";
-
+  // as default with no file saving as folder, is there file name will be unused and use file name instead
   if (file) {
-    const savePath = path.resolve("uploads", randStr(5) + file.name);
+    const saveName = randStr(5) + file.name;
+    const savePath = path.resolve("uploads", saveName);
     const buffer = await file.arrayBuffer();
     await fs.writeFile(savePath, Buffer.from(buffer));
 
-    filePath = "./uploads/" + randStr(5) + file.name;
+    filePath = "./uploads/" + saveName;
     size = file.size;
     name = file.name;
     type = "file";

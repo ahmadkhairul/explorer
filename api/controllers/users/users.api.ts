@@ -1,8 +1,8 @@
 import type { Context } from "elysia";
 
+import { UserService } from "@/controllers/users/users.service";
 import { responseFormat } from "@/helper/response";
 import type { BodyProps } from "@/types/users";
-import { UserService } from "@/controllers/users/users.service";
 
 const userService = new UserService();
 

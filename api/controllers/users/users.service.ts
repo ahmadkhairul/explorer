@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import { and, eq } from "drizzle-orm";
 
+import { users } from "@/controllers/users/users.schema";
 import { db } from "@/db/db";
 import { type BodyProps, type ParamsProps } from "@/types/users";
-import { users } from "@/controllers/users/users.schema";
 
 export class UserService {
   params?: ParamsProps;
@@ -33,8 +33,8 @@ export class UserService {
           params?.name !== undefined ? eq(users.name, params.name) : undefined,
           params?.username !== undefined
             ? eq(users.username, params.username)
-            : undefined
-        )
+            : undefined,
+        ),
       );
   }
 

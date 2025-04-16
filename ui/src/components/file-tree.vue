@@ -26,7 +26,7 @@ onMounted(fetchFiles)
     <div v-else-if="error" class="warning">Error Occured</div>
 
     <!-- Folder List -->
-    <div class="h-full" v-else>
+    <div v-else>
       <FolderItem v-for="file in tree" :key="file.id" :file="file" :selected="selected" @toggle="expandNode" @setselected="setselected"/>
     </div>
   </div>

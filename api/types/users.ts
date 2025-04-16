@@ -1,4 +1,4 @@
-import { t, type Context } from "elysia";
+import { type Context, t } from "elysia";
 
 export interface BodyProps {
   name: string;
@@ -40,4 +40,3 @@ export interface ContextLoginProps extends Context {
   body: LoginProps;
   jwt: JWTContext;
 }
-

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { nextTick, onUnmounted, ref, watch } from "vue";
 import type { Ref } from 'vue';
 import { upsertFile, updateFile, destroyFile, getFiles } from "@/services/file";
 import { type FileProps } from "@/types";
@@ -26,7 +26,7 @@ const emit = defineEmits(["toggle"]);
 const { show } = defineProps<{ show: boolean }>();
 
 const fileTree = useFileTreeStore();
-const { setselected } = fileTree;
+const { setselected, addItem, updateItem, deleteItem } = fileTree;
 const { selected } = storeToRefs(fileTree);
 
 const authStore = useAuthStore();
@@ -58,9 +58,9 @@ const fetchfiles = async (
 
 const refetchfiles = async () => {
   if (selected.value?.id) {
-    fetchfiles(selected.value?.id, {})
+    await fetchfiles(selected.value?.id, {})
   } else {
-    fetchfiles(undefined, {})
+    await fetchfiles(undefined, {})
   }
   folderName.value = "";
   selectedFile.value = null;
@@ -69,40 +69,62 @@ const refetchfiles = async () => {
 }
 
 const createFolder = async () => {
-  await upsertFile({
-    name: folderName.value,
-    parent_id: selected.value ? selected.value?.id : undefined,
-  });
-
-  refetchfiles();
-};
-
-const uploadFiles = async () => {
-  if (selectedFile.value) {
-    await upsertFile({
-      file: selectedFile.value,
+  try {
+    const result = await upsertFile({
+      name: folderName.value,
       parent_id: selected.value ? selected.value?.id : undefined,
     });
 
-    refetchfiles();
+    addItem(result);
+
+    await refetchfiles();
+  } catch (err: any) {
+    error.value = err
+  }
+};
+
+const uploadFiles = async () => {
+  try {
+    if (selectedFile.value) {
+      await upsertFile({
+        file: selectedFile.value,
+        parent_id: selected.value ? selected.value?.id : undefined,
+      });
+
+      await refetchfiles();
+    }
+  } catch (err: any) {
+    error.value = err
   }
 };
 
 const editFile = async () => {
-  if (selectedData.value) {
-    await updateFile(selectedData.value.id, {
-      name: newFileName.value,
-    });
+  try {
+    if (selectedData.value) {
+      const result = await updateFile(selectedData.value.id, {
+        name: newFileName.value,
+      });
 
-    refetchfiles();
+      updateItem(selectedData.value.id, result)
+
+      await refetchfiles();
+    }
+  } catch (err: any) {
+    error.value = err
   }
 };
 
 const deleteFile = async () => {
-  if (selectedData.value) {
-    await destroyFile(selectedData.value.id);
+  try {
+    if (selectedData.value) {
+      await destroyFile(selectedData.value.id);
 
-    refetchfiles();
+      deleteItem(selectedData.value.id)
+
+      refetchfiles();
+    }
+  } catch (err: any) {
+    error.value = err
   }
 };
 
@@ -112,6 +134,7 @@ const logout = async () => {
   window.location.reload()
 }
 
+// Open Modal based modal name
 const openModal = (file: FileProps | undefined, modalName: string) => {
   if (file) {
     selectedData.value = file;
@@ -119,27 +142,31 @@ const openModal = (file: FileProps | undefined, modalName: string) => {
   isModalOpen.value = modalName;
 };
 
-let timeout: number | undefined = undefined;
+let timeout: ReturnType<typeof setTimeout> | undefined;
 
+// Watch for search changes
 watch(searchQuery, () => {
   clearTimeout(timeout);
   timeout = setTimeout(() => {
     fetchfiles(
-      selected.value ? selected.value?.id : undefined,
+      selected.value?.id,
       {
         name: searchQuery.value,
         ...(searchQuery.value && { all: true })
       }
-    )
+    );
   }, 500);
 });
 
+// Watch for selected folder changes
 watch(selected, () => {
   searchQuery.value = '';
+  fetchfiles(selected.value?.id, {});
+});
+
+// Clean up on unmount
+onUnmounted(() => {
   clearTimeout(timeout);
-  timeout = setTimeout(() => {
-    fetchfiles(selected.value ? selected.value?.id : undefined, {})
-  }, 500);
 });
 
 </script>

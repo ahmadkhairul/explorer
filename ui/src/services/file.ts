@@ -39,7 +39,7 @@ export const upsertFile = async (params: UpsertFileParams): Promise<any> => {
     }
   })
 
-  return response.data
+  return response.data[0]
 }
 
 export const updateFile = async (
@@ -49,7 +49,7 @@ export const updateFile = async (
   }
 ) => {
   const response = await fetch.put(`${API_BASE_URL}/files/${id}`, params, { ...config })
-  return response.data
+  return response.data[0]
 }
 
 export const destroyFile = async (id: number) => {
