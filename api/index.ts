@@ -17,6 +17,7 @@ import {
   getUsers,
   updateUsers,
 } from "@/controllers/users/users.api";
+import { getAllowedOrigins } from "@/helper/origin";
 import {
   bodyEditSchema as fileBodyEditSchema,
   bodySchema as fileBodySchema,
@@ -27,7 +28,7 @@ const app = new Elysia();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: getAllowedOrigins(),
     methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
     credentials: true,
   }),
