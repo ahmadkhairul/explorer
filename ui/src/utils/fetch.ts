@@ -3,8 +3,8 @@ import { clearStorages } from './storage'
 
 const instance = axios.create({
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 })
 
 instance.interceptors.request.use(function (config) {
@@ -14,7 +14,7 @@ instance.interceptors.request.use(function (config) {
 export const defaultError = {
   code: 500,
   status: 'error',
-  message: 'Failed to fetch data. Please contact developer.',
+  message: 'Failed to fetch data. Please contact developer.'
 }
 
 instance.interceptors.response.use(

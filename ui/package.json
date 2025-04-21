@@ -20,13 +20,14 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "^17.4.4",
     "@rushstack/eslint-patch": "^1.8.0",
     "@types/node": "^22.14.1",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/eslint-config-prettier": "^9.0.0",
-    "@vue/test-utils": "2.4.2",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
+    "bun-types": "^1.2.10",
     "cssnano": "^7.0.4",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.23.0",
@@ -37,7 +38,6 @@
     "tailwindcss": "^4.1.3",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
-    "vitest": "^3.0.8",
     "vue-tsc": "^2.2.4"
   }
 }

@@ -2,10 +2,12 @@
   <div class="flex min-h-screen bg-white">
     <!-- Left Section -->
     <div
-      class="hidden md:flex w-1/2 items-center justify-center bg-gradient-to-b from-indigo-500 to-blue-500 text-white p-8">
+      class="hidden md:flex w-1/2 items-center justify-center bg-gradient-to-b from-indigo-500 to-blue-500 text-white p-8"
+    >
       <div class="max-w-xl text-center">
         <h2 class="text-4xl font-bold mb-4">Welcome Back!</h2>
-        <p class="mb-6 text-2xl">Access your files and manage your documents securely with our file management system.
+        <p class="mb-6 text-2xl">
+          Access your files and manage your documents securely with our file management system.
         </p>
         <div class="text-6xl">📄</div>
       </div>
@@ -20,18 +22,26 @@
         <form @submit.prevent="" v-on:submit="handleLogin">
           <div class="mb-4">
             <label class="block mb-1 text-sm font-medium text-gray-700">Username</label>
-            <input type="text" v-model="username" placeholder="username"
+            <input
+              type="text"
+              v-model="username"
+              placeholder="username"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required />
+              required
+            />
           </div>
 
           <div class="mb-4">
             <div class="flex justify-between items-center">
               <label class="block mb-1 text-sm font-medium text-gray-700">Password</label>
             </div>
-            <input type="password" v-model="password" placeholder="••••••••"
+            <input
+              type="password"
+              v-model="password"
+              placeholder="••••••••"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required />
+              required
+            />
           </div>
 
           <div class="mb-6 flex items-center">
@@ -39,8 +49,10 @@
             <label for="remember" class="text-sm text-gray-700">Remember me</label>
           </div>
 
-          <button type="submit"
-            class="w-full border-1 border-solid bg-white hover:bg-blue-700 text-blue-700 hover:text-white font-semibold py-2 rounded-lg transition">
+          <button
+            type="submit"
+            class="w-full border-1 border-solid bg-white hover:bg-blue-700 text-blue-700 hover:text-white font-semibold py-2 rounded-lg transition"
+          >
             Sign in
           </button>
 
@@ -72,13 +84,13 @@ const handleLogin = async () => {
     const { token, ...result } = await login({
       username: username.value,
       password: password.value,
-      rememberMe: rememberMe.value,
-    });
+      rememberMe: rememberMe.value
+    })
     setStorageToken(token)
     auth.setToken(token)
     auth.setUser(result)
 
-    await nextTick();
+    await nextTick()
 
     window.location.reload()
   } catch (error: { message: string }) {

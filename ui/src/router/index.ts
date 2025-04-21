@@ -28,7 +28,7 @@ const router = createRouter({
 
 // ✅ Guard
 router.beforeEach((to, _from, next) => {
-  const auth = useAuthStore();
+  const auth = useAuthStore()
 
   const isAuthenticated = !!auth.token
 

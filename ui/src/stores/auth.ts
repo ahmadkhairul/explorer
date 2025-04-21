@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { auth } from '@/services'
-import { clearStorages, getToken, setToken } from '@/utils/storage';
+import { clearStorages, getToken, setToken } from '@/utils/storage'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -16,11 +16,11 @@ export const useAuthStore = defineStore('auth', {
       this.user = userData
     },
     async initialize() {
-      const token = getToken();
+      const token = getToken()
       if (token) {
         this.token = token
         try {
-          const data = await auth() 
+          const data = await auth()
           this.user = data
         } catch (err) {
           this.token = ''

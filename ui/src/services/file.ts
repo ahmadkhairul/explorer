@@ -15,7 +15,10 @@ export const getFiles = async (
     all?: boolean
   }
 ) => {
-  const response = await fetch.get(`${API_BASE_URL}/files${id ? `/${id}` : ''}`, { params, ...config })
+  const response = await fetch.get(`${API_BASE_URL}/files${id ? `/${id}` : ''}`, {
+    params,
+    ...config
+  })
   return response.data
 }
 

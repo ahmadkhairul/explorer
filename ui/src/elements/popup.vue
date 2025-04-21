@@ -15,14 +15,14 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits } from 'vue'
 
-defineProps<{ isOpen: boolean; title?: string }>();
-const emit = defineEmits(["close"]);
+defineProps<{ isOpen: boolean; title?: string }>()
+const emit = defineEmits(['close'])
 
 const closeModal = () => {
-  emit("close"); // Emit event to parent
-};
+  emit('close') // Emit event to parent
+}
 </script>
 
 <style scoped>

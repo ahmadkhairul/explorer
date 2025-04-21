@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import FolderItem from "@/components/file-tree-item.vue";
-import { onMounted } from "vue";
-import { useFileTreeStore } from "@/stores/file-tree"
-import { storeToRefs } from "pinia";
-import { getFiles } from "@/services";
+import FolderItem from '@/components/file-tree-item.vue'
+import { onMounted } from 'vue'
+import { useFileTreeStore } from '@/stores/file-tree'
+import { storeToRefs } from 'pinia'
+import { getFiles } from '@/services'
 
 const fileTree = useFileTreeStore()
 const { initTree, expandNode, setselected } = fileTree
@@ -15,19 +15,24 @@ const fetchFiles = async () => {
 }
 
 onMounted(fetchFiles)
-
 </script>
 
 <template>
   <div class="folder-explorer">
-    
     <!-- Loading State -->
     <div v-if="loading" class="warning">Loading...</div>
     <div v-else-if="error" class="warning">Error Occured</div>
 
     <!-- Folder List -->
     <div v-else>
-      <FolderItem v-for="file in tree" :key="file.id" :file="file" :selected="selected" @toggle="expandNode" @setselected="setselected"/>
+      <FolderItem
+        v-for="file in tree"
+        :key="file.id"
+        :file="file"
+        :selected="selected"
+        @toggle="expandNode"
+        @setselected="setselected"
+      />
     </div>
   </div>
 </template>

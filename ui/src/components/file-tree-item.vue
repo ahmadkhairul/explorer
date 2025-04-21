@@ -1,26 +1,29 @@
 <script setup lang="ts">
-import type { FileNode } from "@/types";
+import type { FileNode } from '@/types'
 
-const emit = defineEmits(["toggle", "setselected"]);
-const { file, selected } = defineProps<{ file: FileNode, selected: FileNode | null }>();
-
+const emit = defineEmits(['toggle', 'setselected'])
+const { file, selected } = defineProps<{ file: FileNode; selected: FileNode | null }>()
 </script>
 
 <template>
   <div class="h-full">
     <div class="folder" :class="{ selected: selected?.id === file.id }">
       <span @click="$emit('toggle', file)">
-        {{ file.expanded ? "🔽" : "▶️" }}
+        {{ file.expanded ? '🔽' : '▶️' }}
       </span>
-      <span class="w-full" @click="$emit('setselected', file)">
-        📁 {{ file.name }}
-      </span>
+      <span class="w-full" @click="$emit('setselected', file)"> 📁 {{ file.name }} </span>
     </div>
 
     <transition name="fade">
       <div class="child-items" v-if="file.expanded">
-        <FileTreeItem v-for="child in file.children" :key="child.id" :file="child" :selected="selected"
-          @toggle="$emit('toggle', $event)" @setselected="$emit('setselected', $event)" />
+        <FileTreeItem
+          v-for="child in file.children"
+          :key="child.id"
+          :file="child"
+          :selected="selected"
+          @toggle="$emit('toggle', $event)"
+          @setselected="$emit('setselected', $event)"
+        />
       </div>
     </transition>
   </div>
@@ -31,7 +34,9 @@ const { file, selected } = defineProps<{ file: FileNode, selected: FileNode | nu
   cursor: pointer;
   padding: 8px;
   border-radius: 4px;
-  transition: background 0.3s, transform 0.2s;
+  transition:
+    background 0.3s,
+    transform 0.2s;
   display: flex;
   align-items: center;
   gap: 5px;

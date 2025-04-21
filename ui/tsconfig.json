@@ -9,9 +9,9 @@
     "esModuleInterop": true,
     "allowJs": true,
     "jsx": "preserve",
-    "types": ["vitest/globals"], // ✅ Ensures Vitest works
+    "types": ["bun-types"], 
     "paths": {
-      "@/*": ["./src/*"] // ✅ Enables alias @/
+      "@/*": ["./src/*"] 
     }
   }
 }
