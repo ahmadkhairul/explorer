@@ -1,12 +1,10 @@
-import fs from "fs/promises";
-import path from "path";
 import type { Context } from "elysia";
 
 import { FileService } from "@/controllers/files/files.service";
 import { responseFormat } from "@/helper/response";
+import saveFile from "@/helper/upload";
 import { currentUser, randStr } from "@/helper/utils";
 import type { BodyProps, CreateProps } from "@/types/files";
-import saveFile from "@/helper/upload";
 
 const fileService = new FileService();
 
@@ -15,7 +13,7 @@ export const findFiles = async (ctx: Context) => {
   const { params } = ctx;
   return responseFormat(
     fileService.findOne(Number(params.id), Number(id)),
-    ctx
+    ctx,
   );
 };
 
@@ -24,13 +22,14 @@ export const getFiles = async (ctx: Context) => {
   const { query, params } = ctx;
   return responseFormat(
     fileService.get(query, { ...params, user_id: id }),
-    ctx
+    ctx,
   );
 };
 
 export const createFiles = async (ctx: Context<{ body: CreateProps }>) => {
   const { id } = await currentUser(ctx);
   // file for file, name for creating folder
+
   const file = ctx.body?.file;
   const parent_id = ctx.body?.parent_id;
   let name = ctx.body?.name;
@@ -64,7 +63,7 @@ export const updateFiles = async (ctx: Context) => {
   const { body, params } = ctx;
   return responseFormat(
     fileService.update({ ...params, user_id: id }, body as BodyProps),
-    ctx
+    ctx,
   );
 };
 
