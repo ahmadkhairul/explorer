@@ -4,7 +4,7 @@ import { getToken } from '@/utils/storage'
 const API_BASE_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:3000/api/v1'
 
 const config = {
-  headers: { Authorization: `Bearer ${getToken()}` }
+  headers: { Authorization: `Bearer ${getToken()}` },
 }
 
 export const getFiles = async (
@@ -13,11 +13,11 @@ export const getFiles = async (
     name?: string
     type?: string
     all?: boolean
-  }
+  },
 ) => {
   const response = await fetch.get(`${API_BASE_URL}/files${id ? `/${id}` : ''}`, {
     params,
-    ...config
+    ...config,
   })
   return response.data
 }
@@ -28,7 +28,7 @@ interface UpsertFileParams {
   parent_id?: number
 }
 
-export const upsertFile = async (params: UpsertFileParams): Promise<any> => {
+export const upsertFile = async (params: UpsertFileParams): Promise<unknown> => {
   const formData = new FormData()
 
   if (params.name) formData.append('name', params.name)
@@ -38,8 +38,8 @@ export const upsertFile = async (params: UpsertFileParams): Promise<any> => {
   const response = await fetch.post(`${API_BASE_URL}/files`, formData, {
     headers: {
       Authorization: `Bearer ${getToken()}`,
-      'Content-Type': 'multipart/form-data'
-    }
+      'Content-Type': 'multipart/form-data',
+    },
   })
 
   return response.data[0]
@@ -49,7 +49,7 @@ export const updateFile = async (
   id: number,
   params: {
     name: string
-  }
+  },
 ) => {
   const response = await fetch.put(`${API_BASE_URL}/files/${id}`, params, { ...config })
   return response.data[0]

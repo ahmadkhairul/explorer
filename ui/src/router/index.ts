@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import FileExplorer from '@/pages/file-explorer.vue'
-import Login from '@/pages/login.vue'
+import FileExplorer from '@/views/FileExplorerView.vue'
+import Login from '@/views/LoginView.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
@@ -8,7 +8,7 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: { isLogin: false }
+    meta: { isLogin: false },
   },
   {
     path: '/',
@@ -16,14 +16,14 @@ const routes = [
     component: FileExplorer,
     meta: {
       isLogin: true, // wajib login
-      role: ['admin', 'user'] // role yang diizinkan
-    }
-  }
+      role: ['admin', 'user'], // role yang diizinkan
+    },
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes
+  routes,
 })
 
 // ✅ Guard

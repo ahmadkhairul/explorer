@@ -2,17 +2,17 @@
 import { nextTick, onUnmounted, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import { upsertFile, updateFile, destroyFile, getFiles } from '@/services/file'
-import { type FileProps } from '@/types'
-import Modal from '@/elements/popup.vue'
+import { type FileProps } from '@/types/files'
+import Modal from '@/elements/PopupElement.vue'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import { useFileTreeStore } from '@/stores/file-tree'
-import Spinner from '@/elements/spinner.vue'
+import Spinner from '@/elements/SpinnerElement.vue'
 // import Breadcrumb from "@/elements/bread-crumb.vue";
 
 const firstrender: Ref<boolean> = ref(true)
 const loading: Ref<boolean> = ref(false)
-const error: Ref<any> = ref(null)
+const error: Ref<unknown> = ref(null)
 const files: Ref<FileProps[] | null> = ref(null)
 
 const isModalOpen: Ref<string | null> = ref(null)
@@ -23,6 +23,7 @@ const newFileName: Ref<string> = ref('')
 const selectedData: Ref<FileProps | null> = ref(null)
 const searchQuery: Ref<string> = ref('')
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emit = defineEmits(['toggle'])
 const { show } = defineProps<{ show: boolean }>()
 
@@ -52,7 +53,7 @@ const fetchfiles = async (
     files.value = await getFiles(id, params)
     loading.value = false
     if (firstrender.value) firstrender.value = false
-  } catch (err: any) {
+  } catch (err: unknown) {
     loading.value = false
     error.value = err
   }
@@ -78,10 +79,10 @@ const createFolder = async () => {
       parent_id: selected.value ? selected.value?.id : undefined
     })
 
-    addItem(result)
+    addItem(result as FileProps)
 
     await refetchfiles()
-  } catch (err: any) {
+  } catch (err: unknown) {
     loading.value = false
     error.value = err
   }
@@ -98,7 +99,7 @@ const uploadFiles = async () => {
 
       await refetchfiles()
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     loading.value = false
     error.value = err
   }
@@ -116,7 +117,7 @@ const editFile = async () => {
 
       await refetchfiles()
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     loading.value = false
     error.value = err
   }
@@ -132,7 +133,7 @@ const deleteFile = async () => {
 
       refetchfiles()
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     loading.value = false
     error.value = err
   }
@@ -179,23 +180,15 @@ onUnmounted(() => {
 
 <template>
   <!-- File List Header (Search & Buttons) -->
-  <div class="file-list-header p-3 border-b-[1px] border-blue-400">
+  <div class="file-list-header">
     <div class="file-button-container">
       <button class="btn" @click="$emit('toggle')">
         {{ show ? '✖️' : '☰' }}
       </button>
-      <button
-        class="btn"
-        @click="openModal(undefined, 'new-folder')"
-        :disabled="searchQuery.length > 0"
-      >
+      <button class="btn" @click="openModal(undefined, 'new-folder')" :disabled="searchQuery.length > 0">
         📁 folder ➕
       </button>
-      <button
-        class="btn"
-        @click="openModal(undefined, 'new-file')"
-        :disabled="searchQuery.length > 0"
-      >
+      <button class="btn" @click="openModal(undefined, 'new-file')" :disabled="searchQuery.length > 0">
         📄 files ➕
       </button>
       <button class="btn" @click="showActions = !showActions">⚙️ action</button>
@@ -205,52 +198,34 @@ onUnmounted(() => {
   </div>
 
   <!-- Create New Folder -->
-  <Modal
-    :isOpen="isModalOpen === 'new-folder'"
-    title="Create New Folder"
-    @close="
-      isModalOpen = null
-      folderName = ''
-    "
-  >
+  <Modal :isOpen="isModalOpen === 'new-folder'" title="Create New Folder" @close="isModalOpen = null; folderName = ''">
     <div class="modal-content">
       <input v-model="folderName" placeholder="Folder Name" />
       <button class="btn" @click="createFolder" :disabled="folderName.length < 1 || loading">
-        Create <Spinner v-if="loading" />
+        Create
+        <Spinner v-if="loading" />
       </button>
     </div>
   </Modal>
 
   <!-- Upload New File -->
-  <Modal
-    :isOpen="isModalOpen === 'new-file'"
-    title="Upload New Files"
-    @close="
-      isModalOpen = null
-      selectedFile = null
-    "
-  >
+  <Modal :isOpen="isModalOpen === 'new-file'" title="Upload New Files" @close="isModalOpen = null; selectedFile = null">
     <div class="modal-content">
       <input @change="handleFileUpload" type="file" />
       <button class="btn" @click="uploadFiles" :disabled="!selectedFile || loading">
-        Upload <Spinner v-if="loading" />
+        Upload
+        <Spinner v-if="loading" />
       </button>
     </div>
   </Modal>
 
   <!-- Modal Rename File -->
-  <Modal
-    :isOpen="isModalOpen === 'rename-file'"
-    title="Rename File"
-    @close="
-      isModalOpen = null
-      newFileName = ''
-    "
-  >
+  <Modal :isOpen="isModalOpen === 'rename-file'" title="Rename File" @close="isModalOpen = null; newFileName = ''">
     <div class="modal-content">
       <input v-model="newFileName" placeholder="New File Name" />
       <button class="btn" @click="editFile" :disabled="newFileName.length < 1 || loading">
-        Rename <Spinner v-if="loading" />
+        Rename
+        <Spinner v-if="loading" />
       </button>
     </div>
   </Modal>
@@ -260,7 +235,8 @@ onUnmounted(() => {
     <div class="modal-content">
       <p>Are you sure you want to delete this file? file inside folder will be deleted as well</p>
       <button class="btn" @click="deleteFile" :disabled="loading">
-        Delete <Spinner v-if="loading" />
+        Delete
+        <Spinner v-if="loading" />
       </button>
     </div>
   </Modal>
@@ -300,6 +276,8 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   margin-bottom: 15px;
+  padding: 0.75rem;
+  border-bottom: 1px solid #60a5fa;
 }
 
 /* Button Container */

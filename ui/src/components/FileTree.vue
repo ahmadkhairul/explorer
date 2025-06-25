@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import FolderItem from '@/components/file-tree-item.vue'
+import FolderItem from '@/components/FileTreeItem.vue'
 import { onMounted } from 'vue'
 import { useFileTreeStore } from '@/stores/file-tree'
 import { storeToRefs } from 'pinia'
@@ -25,14 +25,8 @@ onMounted(fetchFiles)
 
     <!-- Folder List -->
     <div v-else>
-      <FolderItem
-        v-for="file in tree"
-        :key="file.id"
-        :file="file"
-        :selected="selected"
-        @toggle="expandNode"
-        @setselected="setselected"
-      />
+      <FolderItem v-for="file in tree" :key="file.id" :file="file" :selected="selected" @toggle="expandNode"
+        @setselected="setselected" />
     </div>
   </div>
 </template>

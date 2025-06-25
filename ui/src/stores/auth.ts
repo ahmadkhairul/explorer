@@ -4,16 +4,19 @@ import { clearStorages, getToken, setToken } from '@/utils/storage'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: '',
-    user: null as null | { id: number; name: string; role: string }
+    token: '' as string,
+    user: null as null | { id: number; name: string; role: string },
+    error: '' as unknown,
   }),
   actions: {
     setToken(token: string) {
       this.token = token
+      this.error = null
       setToken(token)
     },
     setUser(userData: { id: number; name: string; role: string }) {
       this.user = userData
+      this.error = null
     },
     async initialize() {
       const token = getToken()
@@ -22,9 +25,10 @@ export const useAuthStore = defineStore('auth', {
         try {
           const data = await auth()
           this.user = data
-        } catch (err) {
+        } catch (err: unknown) {
           this.token = ''
           this.user = null
+          this.error = err
           clearStorages()
         }
       }
@@ -32,7 +36,8 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.token = ''
       this.user = null
+      this.error = null
       clearStorages()
-    }
-  }
+    },
+  },
 })

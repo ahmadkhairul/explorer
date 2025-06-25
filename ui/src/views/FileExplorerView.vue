@@ -1,0 +1,67 @@
+<script setup lang="ts">
+import type { Ref } from 'vue'
+import FileExplorer from '@/components/FileExplorer.vue'
+import FileTree from '@/components/FileTree.vue'
+import { ref } from 'vue'
+
+const show: Ref<boolean> = ref(true)
+
+const toggle = () => {
+  show.value = !show.value
+}
+</script>
+
+<template>
+  <div class="container">
+    <!-- Sidebar (File Tree) -->
+    <aside class="file-tree" :class="{ hidden: !show }">
+      <div class="tree-header">File Explorer</div>
+      <div class="tree-body">
+        <FileTree />
+      </div>
+    </aside>
+
+    <!-- Main Content (File List) -->
+    <main class="file-list">
+      <FileExplorer :show @toggle="toggle" />
+    </main>
+  </div>
+</template>
+
+<style scoped>
+.container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.file-tree {
+  width: 24rem;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.hidden {
+  display: none;
+}
+
+.tree-header {
+  height: 3rem;
+  padding: 0.75rem;
+  border-right: 1px solid #60a5fa;
+  border-bottom: 1px solid #60a5fa;
+  box-sizing: border-box;
+}
+
+.tree-body {
+  flex: 1;
+  padding: 0.75rem;
+  border-right: 1px solid #60a5fa;
+  box-sizing: border-box;
+}
+
+.file-list {
+  flex: 1;
+}
+</style>

@@ -1,5 +1,11 @@
 {
-  "recommendations": ["Vue.volar"],
-  "coverage-gutters.showCoverageOnLoad": true,
-  "coverage-gutters.coverageFileNames": ["coverage/lcov.info"]
+  "recommendations": [
+    "Vue.volar",
+    "vitest.explorer",
+    "ms-playwright.playwright",
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig",
+    "oxc.oxc-vscode",
+    "esbenp.prettier-vscode"
+  ]
 }
