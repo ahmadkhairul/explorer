@@ -40,7 +40,7 @@ export const useFileTreeStore = defineStore('fileTree', () => {
     node.expanded = !node.expanded
   }
 
-  const setselected = (node: FileNode) => {
+  const setSelected = (node: FileNode) => {
     selected.value = node
   }
 
@@ -139,7 +139,7 @@ export const useFileTreeStore = defineStore('fileTree', () => {
     error,
     expandNode,
     selected,
-    setselected,
+    setSelected,
     breadcrumb,
     addItem,
     updateItem,

@@ -4,17 +4,13 @@ import FileExplorer from '@/components/FileExplorer.vue'
 import FileTree from '@/components/FileTree.vue'
 import { ref } from 'vue'
 
-const show: Ref<boolean> = ref(true)
-
-const toggle = () => {
-  show.value = !show.value
-}
+const sidebar: Ref<boolean> = ref(true)
 </script>
 
 <template>
   <div class="container">
     <!-- Sidebar (File Tree) -->
-    <aside class="file-tree" :class="{ hidden: !show }">
+    <aside class="file-tree" :class="{ hidden: !sidebar }">
       <div class="tree-header">File Explorer</div>
       <div class="tree-body">
         <FileTree />
@@ -23,7 +19,7 @@ const toggle = () => {
 
     <!-- Main Content (File List) -->
     <main class="file-list">
-      <FileExplorer :show @toggle="toggle" />
+      <FileExplorer :sidebar v-model="sidebar" />
     </main>
   </div>
 </template>
