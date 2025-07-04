@@ -5,7 +5,7 @@ import SpinnerElement from '@/elements/SpinnerElement.vue'
 
 const emit = defineEmits(['create-folder', 'open-modal'])
 const { modal, loading } = defineProps<{ loading: boolean, modal: string | null }>()
-const newFolderName = defineModel<string | null>()
+const newFolder = defineModel<string | null>()
 
 function openModal(action: ModalAction | null) {
   emit('open-modal', undefined, action )
@@ -21,20 +21,20 @@ function createFolder() {
   <Modal
     :isOpen="modal === 'new-folder'"
     title="Create New Folder"
-    @close="openModal(null); newFolderName = ''"
+    @close="openModal(null); newFolder = ''"
   >
     <div class="content">
       <input
-        v-model="newFolderName"
+        v-model="newFolder"
         placeholder="Nama folder"
-        data-testid="folder-name-input"
+        data-testid="new-folder-input"
       />
       <button
         class="btn"
         type="button"
         data-testid="create-folder-btn"
         @click="createFolder"
-        :disabled="!newFolderName || loading"
+        :disabled="!newFolder || loading"
       >
         {{ loading ? 'Creating...' : 'Create' }}
         <SpinnerElement v-if="loading" />

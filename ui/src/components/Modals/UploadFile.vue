@@ -26,7 +26,7 @@ function uploadFile() {
 <template>
   <Modal :isOpen="modal === 'new-file'" title="Upload New Files" @close="openModal(null); newFile = null">
     <div class="content">
-      <input @change="handleFileUpload" type="file" />
+      <input @change="handleFileUpload" type="file" data-testid="new-file-input"/>
       <button class="btn" @click="uploadFile" :disabled="!newFile || loading">
         {{ loading ? 'Uploading...' : 'Upload' }}
         <Spinner v-if="loading" />

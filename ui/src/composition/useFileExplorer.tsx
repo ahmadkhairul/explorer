@@ -13,7 +13,7 @@ export function useFileExplorer() {
   const files: Ref<FileProps[] | null> = ref(null) // List of files/folders
   const modal: Ref<string | null> = ref(null) // Modal type: 'create', 'delete', etc
 
-  const newFolderName: Ref<string> = ref('') // Input for creating new folder
+  const newFolder: Ref<string> = ref('') // Input for creating new folder
   const newFileName: Ref<string> = ref('') // Input for renaming file/folder
   const newFile: Ref<File | null> = ref(null) // File to be uploaded
 
@@ -44,7 +44,7 @@ export function useFileExplorer() {
 
   async function refetchfiles() {
     await fetchfiles(selected.value?.id)
-    newFolderName.value = ''
+    newFolder.value = ''
     newFile.value = null
     newFileName.value = ''
     modal.value = null
@@ -54,7 +54,7 @@ export function useFileExplorer() {
     try {
       loading.value = true
       const result = await upsertFile({
-        name: newFolderName.value,
+        name: newFolder.value,
         parent_id: selected.value?.id,
       })
       addItem(result as FileProps)
@@ -140,7 +140,7 @@ export function useFileExplorer() {
     error,
     files,
     modal,
-    newFolderName,
+    newFolder,
     newFile,
     actions,
     newFileName,

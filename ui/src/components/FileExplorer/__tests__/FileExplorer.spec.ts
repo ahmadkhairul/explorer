@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import FileExplorer from '../FileExplorer.vue'
+import FileExplorer from '@/components/FileExplorer/FileExplorer.vue'
 import { mountWithPinia } from '@/utils/test-utils'
 
 describe('FileExplorer', () => {
@@ -22,6 +22,15 @@ describe('FileExplorer', () => {
 
     const searchInput = wrapper.get('[data-testid="search-input"]')
     await searchInput.setValue('test')
+
+    const folderInput = wrapper.get('[data-testid="new-folder-input')
+    await folderInput.setValue('test')
+
+    const fileNameInput = wrapper.get('[data-testid="new-file-name-input')
+    await fileNameInput.setValue('test')
+
+    const newFileInput = wrapper.get('[data-testid="new-file-input')
+    await newFileInput.setValue('test')
     expect(wrapper.exists()).toBe(true)
   })
 })

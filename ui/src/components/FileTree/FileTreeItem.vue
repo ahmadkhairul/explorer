@@ -2,14 +2,14 @@
 import type { FileNode } from '@/types'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const emit = defineEmits(['toggle', 'setSelected'])
+const emit = defineEmits(['expand', 'setSelected'])
 const { file, selected } = defineProps<{ file: FileNode; selected: FileNode | null }>()
 </script>
 
 <template>
   <div class="container">
     <div class="folder" :class="{ selected: selected?.id === file.id }">
-      <span @click="$emit('toggle', file)">
+      <span @click="$emit('expand', file)">
         {{ file.expanded ? '🔽' : '▶️' }}
       </span>
       <span class="full" @click="$emit('setSelected', file)"> 📁 {{ file.name }} </span>
@@ -18,7 +18,7 @@ const { file, selected } = defineProps<{ file: FileNode; selected: FileNode | nu
     <transition name="fade">
       <div class="child-items" v-if="file.expanded">
         <FileTreeItem v-for="child in file.children" :key="child.id" :file="child" :selected="selected"
-          @toggle="$emit('toggle', $event)" @setSelected="$emit('setSelected', $event)" />
+          @expand="$emit('expand', $event)" @setSelected="$emit('setSelected', $event)" />
       </div>
     </transition>
   </div>

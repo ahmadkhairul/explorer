@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
-import FileExplorer from '@/components/FileExplorer.vue'
-import FileTree from '@/components/FileTree.vue'
+import FileExplorer from '@/components/FileExplorer/FileExplorer.vue'
+import FileTree from '@/components/FileTree/FileTree.vue'
 import { ref } from 'vue'
 
 const sidebar: Ref<boolean> = ref(true)

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import FileListHeader from './FileListHeader.vue'
-import FileList from './FileList.vue'
-import CreateFolder from './Modals/CreateFolder.vue'
-import DeleteFile from './Modals/DeleteFile.vue'
-import RenameFile from './Modals/RenameFile.vue'
-import UploadFile from './Modals/UploadFile.vue'
+import FileListHeader from '@/components/FileExplorer/FileListHeader.vue'
+import FileList from '@/components/FileExplorer/FileList.vue'
+import CreateFolder from '@/components/Modals/CreateFolder.vue'
+import DeleteFile from '@/components/Modals/DeleteFile.vue'
+import RenameFile from '@/components/Modals/RenameFile.vue'
+import UploadFile from '@/components/Modals/UploadFile.vue'
 import { useFileExplorer } from '@/composition/useFileExplorer'
 
 const sidebar = defineModel<boolean>()
@@ -14,7 +14,7 @@ const {
   loading,
   files,
   modal,
-  newFolderName,
+  newFolder,
   newFile,
   actions,
   newFileName,
@@ -36,7 +36,7 @@ const {
   />
 
   <CreateFolder
-    v-model="newFolderName"
+    v-model="newFolder"
     :modal="modal"
     :loading="loading"
     @create-folder="createFolder"

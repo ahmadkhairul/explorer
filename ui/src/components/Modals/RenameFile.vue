@@ -23,6 +23,7 @@ function editFile() {
         v-model="newFileName"
         placeholder="New File Name"
         @keyup.enter="editFile"
+        data-testid="new-file-name-input"
       />
       <button class="btn" @click="editFile" :disabled="!newFileName || loading">
         {{ loading ? 'Renaming...' : 'Rename'}}
