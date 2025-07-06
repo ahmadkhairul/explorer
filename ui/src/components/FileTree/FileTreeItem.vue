@@ -2,23 +2,23 @@
 import type { FileNode } from '@/types'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const emit = defineEmits(['expand', 'setSelected'])
-const { file, selected } = defineProps<{ file: FileNode; selected: FileNode | null }>()
+const emit = defineEmits(['expand', 'setSelectedItem'])
+const { file, selectedItem } = defineProps<{ file: FileNode; selectedItem: FileNode | null }>()
 </script>
 
 <template>
   <div class="container">
-    <div class="folder" :class="{ selected: selected?.id === file.id }">
+    <div class="folder" :class="{ selectedItem: selectedItem?.id === file.id }">
       <span @click="$emit('expand', file)">
         {{ file.expanded ? '🔽' : '▶️' }}
       </span>
-      <span class="full" @click="$emit('setSelected', file)"> 📁 {{ file.name }} </span>
+      <span class="full" @click="$emit('setSelectedItem', file)"> 📁 {{ file.name }} </span>
     </div>
 
     <transition name="fade">
       <div class="child-items" v-if="file.expanded">
-        <FileTreeItem v-for="child in file.children" :key="child.id" :file="child" :selected="selected"
-          @expand="$emit('expand', $event)" @setSelected="$emit('setSelected', $event)" />
+        <FileTreeItem v-for="child in file.children" :key="child.id" :file="child" :selectedItem="selectedItem"
+          @expand="$emit('expand', $event)" @setSelectedItem="$emit('setSelectedItem', $event)" />
       </div>
     </transition>
   </div>
@@ -47,7 +47,7 @@ const { file, selected } = defineProps<{ file: FileNode; selected: FileNode | nu
 }
 
 .folder:hover,
-.selected {
+.selectedItem {
   background-color: #cce5ff;
   color: #004085;
 }

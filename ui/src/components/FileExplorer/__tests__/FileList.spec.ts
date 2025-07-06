@@ -1,5 +1,5 @@
 import { mountWithPinia } from '@/utils/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import FileList from '@/components/FileExplorer/FileList.vue'
 
 const initialProps = {
@@ -65,7 +65,7 @@ describe('FileList.vue — render and interaction', () => {
     expect(wrapper.text()).toContain('Folder masih kosong')
   })
 
-  // ✅ Show initial prompt when no folder is selected yet
+  // ✅ Show initial prompt when no folder is selectedItem yet
   it('renders firstRender message when firstRender is true and files is null', () => {
     const wrapper = mountWithPinia(FileList, {
       props: {
@@ -84,8 +84,6 @@ describe('FileList.vue — render and interaction', () => {
       props: initialProps
     })
 
-    const emitted = wrapper.emitted()
-
     // Edit buttons
     const editBtns = wrapper.findAll('[data-testid="edit-btn"]')
     await editBtns[0].trigger('click')
@@ -96,7 +94,7 @@ describe('FileList.vue — render and interaction', () => {
     await deleteBtns[0].trigger('click')
     await deleteBtns[1].trigger('click')
 
-    // Double click folder (should trigger setSelected in store — not emitted)
+    // Double click folder (should trigger setSelectedItem in store — not emitted)
     const items = wrapper.findAll('[data-testid="item-file"]')
     await items[0].trigger('dblclick') // folder
     await items[1].trigger('dblclick') // file

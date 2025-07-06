@@ -5,7 +5,67 @@ import { useFileTreeStore } from '@/stores/file-tree'
 import { storeToRefs } from 'pinia'
 import type { FileProps } from '@/types/files'
 
-export function useFileExplorer() {
+export interface UseFileExplorerReturn {
+  firstRender: Ref<boolean>
+  loading: Ref<boolean>
+  error: Ref<unknown>
+  files: Ref<FileProps[] | null>
+  modal: Ref<string | null>
+  newFolder: Ref<string>
+  newFileName: Ref<string>
+  newFile: Ref<File | null>
+  actionItem: Ref<FileProps | null>
+  actions: Ref<boolean>
+  search: Ref<string>
+  fetchfiles: (id?: number, params?: { name?: string; type?: string; all?: boolean }) => Promise<void>
+  refetchfiles: () => Promise<void>
+  createFolder: () => Promise<void>
+  uploadFile: () => Promise<void>
+  editFile: () => Promise<void>
+  deleteFile: () => Promise<void>
+  openModal: (file: FileProps | undefined, modalName: string) => void
+}
+
+/**
+ * useFileExplorer
+ *
+ * This composable handles the logic for managing files and folders in the file explorer UI.
+ * It integrates with the file API (get, create, update, delete) and syncs state with the file tree store.
+ *
+ * Reactive states include file/folder list, loading status, modal visibility, form inputs, and selectedItem item.
+ *
+ * Features:
+ * - Fetch files and folders for a selectedItem directory
+ * - Create new folders
+ * - Upload files
+ * - Rename existing files or folders
+ * - Delete files or folders
+ * - Search files by name with debounced API call
+ * - Manage modal visibility for file actions
+ *
+ * @returns {{
+ *   firstRender: Ref<boolean>,
+ *   loading: Ref<boolean>,
+ *   error: Ref<unknown>,
+ *   files: Ref<FileProps[] | null>,
+ *   modal: Ref<string | null>,
+ *   newFolder: Ref<string>,
+ *   newFileName: Ref<string>,
+ *   newFile: Ref<File | null>,
+ *   actionItem: Ref<FileProps | null>,
+ *   actions: Ref<boolean>,
+ *   search: Ref<string>,
+ *   fetchfiles: Function,
+ *   refetchfiles: Function,
+ *   createFolder: Function,
+ *   uploadFile: Function,
+ *   editFile: Function,
+ *   deleteFile: Function,
+ *   openModal: Function
+ * }}
+ */
+
+export function useFileExplorer(): UseFileExplorerReturn {
   const firstRender: Ref<boolean> = ref(true) // Show "please select folder" on first render
   const loading: Ref<boolean> = ref(false) // Indicates loading state
   const error: Ref<unknown> = ref(null) // Stores API error
@@ -17,12 +77,12 @@ export function useFileExplorer() {
   const newFileName: Ref<string> = ref('') // Input for renaming file/folder
   const newFile: Ref<File | null> = ref(null) // File to be uploaded
 
-  const selectedData: Ref<FileProps | null> = ref(null) // File/folder selected for edit/delete
+  const actionItem: Ref<FileProps | null> = ref(null) // File/folder selectedItem for edit/delete
   const actions: Ref<boolean> = ref(false) // Toggle for showing edit/delete actions
   const search: Ref<string> = ref('') // Search query string
 
   const fileTree = useFileTreeStore()
-  const { selected } = storeToRefs(fileTree)
+  const { selectedItem } = storeToRefs(fileTree)
   const { addItem, updateItem, deleteItem } = fileTree
 
   let timeout: ReturnType<typeof setTimeout> | undefined
@@ -43,7 +103,7 @@ export function useFileExplorer() {
   }
 
   async function refetchfiles() {
-    await fetchfiles(selected.value?.id)
+    await fetchfiles(selectedItem.value?.id)
     newFolder.value = ''
     newFile.value = null
     newFileName.value = ''
@@ -55,7 +115,7 @@ export function useFileExplorer() {
       loading.value = true
       const result = await upsertFile({
         name: newFolder.value,
-        parent_id: selected.value?.id
+        parent_id: selectedItem.value?.id
       })
       addItem(result as FileProps)
       await refetchfiles()
@@ -72,7 +132,7 @@ export function useFileExplorer() {
       loading.value = true
       await upsertFile({
         file: newFile.value,
-        parent_id: selected.value?.id
+        parent_id: selectedItem.value?.id
       })
       await refetchfiles()
     } catch (err) {
@@ -84,10 +144,10 @@ export function useFileExplorer() {
 
   async function editFile() {
     try {
-      if (!selectedData.value) return
+      if (!actionItem.value) return
       loading.value = true
-      const result = await updateFile(selectedData.value.id, { name: newFileName.value })
-      updateItem(selectedData.value.id, result)
+      const result = await updateFile(actionItem.value.id, { name: newFileName.value })
+      updateItem(actionItem.value.id, result)
       await refetchfiles()
     } catch (err) {
       error.value = err
@@ -98,10 +158,10 @@ export function useFileExplorer() {
 
   async function deleteFile() {
     try {
-      if (!selectedData.value) return
+      if (!actionItem.value) return
       loading.value = true
-      await destroyFile(selectedData.value.id)
-      deleteItem(selectedData.value.id)
+      await destroyFile(actionItem.value.id)
+      deleteItem(actionItem.value.id)
       await refetchfiles()
     } catch (err) {
       error.value = err
@@ -111,23 +171,23 @@ export function useFileExplorer() {
   }
 
   function openModal(file: FileProps | undefined, modalName: string) {
-    if (file) selectedData.value = file
+    if (file) actionItem.value = file
     modal.value = modalName
   }
 
   watch(search, () => {
     clearTimeout(timeout)
     timeout = setTimeout(() => {
-      fetchfiles(selected.value?.id, {
+      fetchfiles(selectedItem.value?.id, {
         name: search.value,
         ...(search.value && { all: true })
       })
     }, 500)
   })
 
-  watch(selected, () => {
+  watch(selectedItem, () => {
     search.value = ''
-    fetchfiles(selected.value?.id)
+    fetchfiles(selectedItem.value?.id)
   })
 
   onUnmounted(() => {
@@ -144,7 +204,7 @@ export function useFileExplorer() {
     newFile,
     actions,
     newFileName,
-    selectedData,
+    actionItem,
     search,
     fetchfiles,
     refetchfiles,

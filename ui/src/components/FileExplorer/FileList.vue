@@ -5,7 +5,7 @@
 
   const emit = defineEmits(['open-modal'])
 
-  const { setSelected } = useFileTreeStore()
+  const { setSelectedItem } = useFileTreeStore()
 
   const { actions, files, loading, firstRender } = defineProps<{
     actions: boolean
@@ -24,11 +24,11 @@
 
   <div v-else-if="firstRender" class="loading">Silakan pilih folder terlebih dahulu</div>
 
-  <div v-else-if="!files" class="loading">Folder masih kosong</div>
+  <div v-else-if="!files || !files.length" class="loading">Folder masih kosong</div>
 
   <div class="container" v-else>
     <div class="container-file" v-for="file in files" :key="file.id">
-      <div data-testid="item-file" class="container-item" @dblclick="setSelected(file)">
+      <div data-testid="item-file" class="container-item" @dblclick="setSelectedItem(file)">
         <div>{{ file.type === 'folder' ? '📁' : '📄' }}</div>
         <p class="ellipsis">{{ file.name }}</p>
       </div>

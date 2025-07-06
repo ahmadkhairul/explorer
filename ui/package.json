@@ -16,10 +16,9 @@
     "lint:eslint": "eslint . --fix",
     "lint": "run-s lint:*",
     "format": "prettier --write src/",
-    "docs": "typedoc src --entryPointStrategy expand"
+    "docs": "typedoc src --tsconfig tsconfig.app.json --entryPointStrategy expand"
   },
   "dependencies": {
-    "@testing-library/vue": "^8.1.0",
     "axios": "^1.10.0",
     "pinia": "^3.0.3",
     "vue": "^3.5.17",

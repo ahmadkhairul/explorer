@@ -6,8 +6,8 @@ import { storeToRefs } from 'pinia'
 import { getFiles } from '@/services'
 
 const fileTree = useFileTreeStore()
-const { initTree, expandNode, setSelected } = fileTree
-const { loading, error, tree, selected } = storeToRefs(fileTree)
+const { initTree, expandNode, setSelectedItem } = fileTree
+const { loading, error, tree, selectedItem } = storeToRefs(fileTree)
 
 const fetchFiles = async () => {
   const all = await getFiles(undefined, { type: 'folder', all: true })
@@ -25,8 +25,8 @@ onMounted(fetchFiles)
 
     <!-- Folder List -->
     <div v-else>
-      <FolderItem v-for="file in tree" :key="file.id" :file="file" :selected="selected" @expand="expandNode"
-        @setSelected="setSelected" />
+      <FolderItem v-for="file in tree" :key="file.id" :file="file" :selectedItem="selectedItem" @expand="expandNode"
+        @setSelectedItem="setSelectedItem" />
     </div>
   </div>
 </template>

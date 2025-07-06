@@ -1,4 +1,3 @@
-import { render, type RenderOptions } from '@testing-library/vue'
 import { mount, type MountingOptions } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 /**
@@ -15,17 +14,6 @@ function getGlobalConfig(globalOverrides = {}) {
     ...globalOverrides
   }
 }
-
-/**
- * For user-centric testing (Testing Library)
- */
-export function renderWithPinia(component: any, options: RenderOptions<any> = {}) {
-  return render(component, {
-    global: getGlobalConfig(options.global),
-    ...options
-  })
-}
-
 /**
  * For internal/component-centric testing (Vue Test Utils)
  */

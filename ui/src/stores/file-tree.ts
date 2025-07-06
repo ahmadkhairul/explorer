@@ -7,7 +7,7 @@ export const useFileTreeStore = defineStore('fileTree', () => {
   const cache = ref<Record<number, FileNode[]>>({})
   const loading = ref<boolean>(true)
   const error = ref<any>(null)
-  const selected = ref<FileNode | null>(null)
+  const selectedItem = ref<FileNode | null>(null)
   const breadcrumb = ref<FileProps[]>([])
 
   const initTree = async (all: FileProps[]) => {
@@ -21,7 +21,7 @@ export const useFileTreeStore = defineStore('fileTree', () => {
       }
 
       const buildTree = (parentId: number): FileNode[] => {
-        return (map[parentId] || []).map((node) => ({
+        return (map[parentId] || []).map(node => ({
           ...node,
           children: buildTree(node.id)
         }))
@@ -40,8 +40,10 @@ export const useFileTreeStore = defineStore('fileTree', () => {
     node.expanded = !node.expanded
   }
 
-  const setSelected = (node: FileNode) => {
-    selected.value = node
+  const setSelectedItem = (node: FileNode) => {
+    if (node.type === 'folder') {
+      selectedItem.value = node
+    }
   }
 
   const addItem = (item: FileProps) => {
@@ -107,7 +109,7 @@ export const useFileTreeStore = defineStore('fileTree', () => {
 
     // Hapus dari tree
     const deleteFromTree = (nodes: FileNode[]): boolean => {
-      const index = nodes.findIndex((node) => node.id === id)
+      const index = nodes.findIndex(node => node.id === id)
       if (index !== -1) {
         const targetNode = nodes[index]
         collectDescendants([targetNode])
@@ -127,7 +129,7 @@ export const useFileTreeStore = defineStore('fileTree', () => {
     // Hapus dari cache semua yang termasuk descendant
     deleteFromTree(tree.value)
     for (const parentId in cache.value) {
-      cache.value[parentId] = cache.value[parentId].filter((node) => !removeIds.includes(node.id))
+      cache.value[parentId] = cache.value[parentId].filter(node => !removeIds.includes(node.id))
     }
   }
 
@@ -138,8 +140,8 @@ export const useFileTreeStore = defineStore('fileTree', () => {
     loading,
     error,
     expandNode,
-    selected,
-    setSelected,
+    selectedItem,
+    setSelectedItem,
     breadcrumb,
     addItem,
     updateItem,
