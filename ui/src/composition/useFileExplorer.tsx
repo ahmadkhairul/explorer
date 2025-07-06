@@ -29,7 +29,7 @@ export function useFileExplorer() {
 
   async function fetchfiles(
     id?: number,
-    params: { name?: string; type?: string; all?: boolean } = {},
+    params: { name?: string; type?: string; all?: boolean } = {}
   ) {
     try {
       loading.value = true
@@ -55,7 +55,7 @@ export function useFileExplorer() {
       loading.value = true
       const result = await upsertFile({
         name: newFolder.value,
-        parent_id: selected.value?.id,
+        parent_id: selected.value?.id
       })
       addItem(result as FileProps)
       await refetchfiles()
@@ -72,7 +72,7 @@ export function useFileExplorer() {
       loading.value = true
       await upsertFile({
         file: newFile.value,
-        parent_id: selected.value?.id,
+        parent_id: selected.value?.id
       })
       await refetchfiles()
     } catch (err) {
@@ -120,7 +120,7 @@ export function useFileExplorer() {
     timeout = setTimeout(() => {
       fetchfiles(selected.value?.id, {
         name: search.value,
-        ...(search.value && { all: true }),
+        ...(search.value && { all: true })
       })
     }, 500)
   })
@@ -152,6 +152,6 @@ export function useFileExplorer() {
     uploadFile,
     editFile,
     deleteFile,
-    openModal,
+    openModal
   }
 }

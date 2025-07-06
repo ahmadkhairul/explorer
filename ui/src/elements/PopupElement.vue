@@ -1,6 +1,6 @@
 <template>
-  <Teleport to="body">
-    <div v-if="isOpen" class="modal-overlay" @click="closeModal">
+  <teleport to="body">
+    <div v-show="isOpen" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <header>
           <h2>{{ title }}</h2>

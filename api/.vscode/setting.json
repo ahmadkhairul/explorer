@@ -5,5 +5,5 @@
     "source.organizeImports": true
   },
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "eslint.validate": ["typescript", "javascript"]
+  "eslint.validate": ["typescript", "javascript","vue"]
 }

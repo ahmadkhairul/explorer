@@ -2,7 +2,7 @@ export interface FileProps {
   id: number
   parent_id: number
   name: string
-  type: string
+  type: 'file' | 'folder'
   size: number
   created_at: string
   updated_at: string

@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import FileListHeader from '@/components/FileExplorer/FileListHeader.vue'
-import FileList from '@/components/FileExplorer/FileList.vue'
-import CreateFolder from '@/components/Modals/CreateFolder.vue'
-import DeleteFile from '@/components/Modals/DeleteFile.vue'
-import RenameFile from '@/components/Modals/RenameFile.vue'
-import UploadFile from '@/components/Modals/UploadFile.vue'
-import { useFileExplorer } from '@/composition/useFileExplorer'
+  import FileListHeader from '@/components/FileExplorer/FileListHeader.vue'
+  import FileList from '@/components/FileExplorer/FileList.vue'
+  import CreateFolder from '@/components/Modals/CreateFolder.vue'
+  import DeleteFile from '@/components/Modals/DeleteFile.vue'
+  import RenameFile from '@/components/Modals/RenameFile.vue'
+  import UploadFile from '@/components/Modals/UploadFile.vue'
+  import { useFileExplorer } from '@/composition/useFileExplorer'
 
-const sidebar = defineModel<boolean>()
+  const sidebar = defineModel<boolean>()
 
-const {
-  firstRender,
-  loading,
-  files,
-  modal,
-  newFolder,
-  newFile,
-  actions,
-  newFileName,
-  search,
-  createFolder,
-  uploadFile,
-  editFile,
-  deleteFile,
-  openModal,
-} = useFileExplorer()
+  const {
+    firstRender,
+    loading,
+    files,
+    modal,
+    newFolder,
+    newFile,
+    actions,
+    newFileName,
+    search,
+    createFolder,
+    uploadFile,
+    editFile,
+    deleteFile,
+    openModal
+  } = useFileExplorer()
 </script>
 
 <template>
@@ -43,12 +43,7 @@ const {
     @open-modal="openModal"
   />
 
-  <DeleteFile
-    :modal="modal"
-    :loading="loading"
-    @delete-file="deleteFile"
-    @open-modal="openModal"
-  />
+  <DeleteFile :modal="modal" :loading="loading" @delete-file="deleteFile" @open-modal="openModal" />
 
   <RenameFile
     v-model="newFileName"
@@ -75,5 +70,4 @@ const {
   />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
